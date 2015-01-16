@@ -1,0 +1,218 @@
+<html>
+<head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+    <script type="text/javascript" src="lib/protovis-3.2/protovis-d3.2.js"></script>
+    <script type="text/javascript" charset="utf-8" src="lib/underscore.js"></script>
+    <script type="text/javascript" charset="utf-8" src="lib/HextoRGB.js"></script>
+    <script type="text/javascript" charset="utf-8" src="utils.js"></script>
+    <script type="text/javascript" charset="utf-8" src="radars/radarData.js"></script>
+    <script type="text/javascript" src="radar.js" charset="utf-8"></script>
+    <script type="text/javascript" charset="utf-8">
+        if (typeof window.console === 'undefined') {
+            window.console = {
+                log: function (thing) {
+                }
+            };
+        }
+        function log(thing) {
+            if (typeof console !== 'undefined') {
+                console.log(thing);
+            } else {
+                alert(thing);
+            }
+        }
+        function dir(thing) {
+            if (typeof console !== 'undefined') {
+                console.dir(thing);
+            } else {
+                alert(thing);
+            }
+        }
+        var categoriesCreated = false;
+        var csvData = [];
+        var csvDataCleaned = [];
+        var categories = [];
+        function getData() {
+            $.get('data-43.csv', function (data) {
+                csvData = data.split("\n").splice(2);
+                $.each(csvData, function (index, item) {
+                    var line = item.split(",");
+//                    log(line[10]); // category
+//                    log(line[11]); // quadrant
+//                    log(line[12]); // item
+//                    log(line[13]); // url
+//                    log(line[19]); // ring
+//                    log(line[20]); // ring depth
+//                    log('--');
+                    var category = line[9];
+                    if (categories.indexOf(category) < 0) {
+                        if (category !== '') {
+                            categories.push(category);
+                        }
+                    }
+                    if (line[9] !== '' && line[11] !== '' && line[12] !== '' && line[19] !== '' && line[20] !== '' && line[21]) {
+                        // 9 = Summary Category, 10 = Quadrant, 11 = items, 18 = A/S, 19 = DoT, 12 = URL, 20 = BlipSize
+                        csvDataCleaned.push(line[9] + ',' + line[11] + ',' + line[12] + ',' + line[19] + ',' + line[20] + ',' + line[13] + ',' + line[21]);
+                    }
+                    if (index == csvData.length - 1) {
+                        categoriesCreated = true;
+                        $.each(categories, function (index, item) {
+                            var categorySelect = document.getElementById('category');
+                            var option = document.createElement('option');
+                            option.text = item;
+                            option.value = index;
+                            categorySelect.add(option);
+                            if (index == categories.length - 1) {
+                                $('#category').val('0').trigger('change');
+                            }
+                        });
+                    }
+                });
+            });
+        }
+        var h = 950;
+        var w = 1350;
+        var radar_data = [];
+        function changeRadarData(option) {
+            var categoryCsvData = _.filter(csvDataCleaned, function (element) {
+                return element.indexOf(option.text) === 0;
+            });
+            setRadarData(categoryCsvData);
+
+            $('#title').text(option.text);
+        }
+        function setRadarData(categoryArray) {
+            radar_data = [];
+            var lines = categoryArray;
+            var createdQuadrants = [];
+            $.each(lines, function (index, value) {
+                var obj = {};
+                var valueArray = value.split(',');
+                var quadrant = valueArray[1];
+                if (createdQuadrants.indexOf(quadrant) < 0 && createdQuadrants.length < 4) {
+                    obj['quadrant'] = quadrant;
+                    radar_data.push(obj);
+                    createdQuadrants.push(quadrant);
+                }
+            });
+            if (typeof radar_data[0] !== 'undefined') {
+                radar_data[0]['left'] = 45;
+                radar_data[0]['top'] = 45;
+                radar_data[0]['color'] = "#8FA227";
+                radar_data[0]['items'] = [];
+            }
+            if (typeof radar_data[1] !== 'undefined') {
+                radar_data[1]['left'] = w - 200 + 30;
+                radar_data[1]['top'] = 18;
+                radar_data[1]['color'] = "#587486";
+                radar_data[1]['items'] = [];
+            }
+            if (typeof radar_data[2] !== 'undefined') {
+                radar_data[2]['left'] = 45;
+                radar_data[2]['top'] = (h / 2 + 18);
+                radar_data[2]['color'] = "#DC6F1D";
+                radar_data[2]['items'] = [];
+            }
+            if (typeof radar_data[3] !== 'undefined') {
+                radar_data[3]['left'] = (w - 200 + 30);
+                radar_data[3]['top'] = (h / 2 + 18);
+                radar_data[3]['color'] = "#B70062";
+                radar_data[3]['items'] = [];
+            }
+            $.each(lines, function (index, value) {
+                var obj = {};
+                var valueArray = value.split(',');
+                var ring = valueArray[3];
+                var directionOfTravel = valueArray[4];
+                var url = valueArray[5];
+                var quadrantIndex = createdQuadrants.indexOf(valueArray[1]);
+                var directionOfTravelIncrementName = ['In', 'Static', 'Out']
+                var directionOfTravelIncrementValue = [20, 50, 80];
+                var radial = directionOfTravelIncrementValue[directionOfTravelIncrementName.indexOf(directionOfTravel)];
+                switch (ring) {
+                    case 'Maintain':
+                        radial += 10;
+                        break;
+                    case 'Invest':
+                        radial += 100;
+                        break;
+                    case 'Watch':
+                        radial += 200;
+                        break;
+                    case 'Exit':
+                        radial += 305;
+                        break;
+                    default:
+                        break;
+                }
+                obj['name'] = valueArray[2];
+                obj['pc'] = {'r': radial, 't': 135};
+                obj['movement'] = 'c';
+                // Add the blipSize
+                obj['blipSize'] = valueArray[6];
+                if (typeof url !== 'undefined' && url !== '') {
+                    obj['url'] = url;
+                }
+                radar_data[quadrantIndex]['items'].push(obj);
+            });
+            var quadrantStartingAngle = [90, 0, 180, -90];
+            var quadrantItems = [];
+            if (typeof radar_data[0] !== 'undefined') {
+                quadrantItems.push(radar_data[0].items.length);
+            }
+            if (typeof radar_data[1] !== 'undefined') {
+                quadrantItems.push(radar_data[1].items.length);
+            }
+            if (typeof radar_data[2] !== 'undefined') {
+                quadrantItems.push(radar_data[2].items.length);
+            }
+            if (typeof radar_data[3] !== 'undefined') {
+                quadrantItems.push(radar_data[3].items.length);
+            }
+            var quadrantSpacing = [];
+            $.each(quadrantItems, function (index, value) {
+                quadrantSpacing.push(85 / quadrantItems[index]);
+            });
+            $('#department').empty();
+            $.each(radar_data, function (index, value) {
+                var quadrantIndex = index;
+                $.each(value['items'], function (index, value) {
+                    this.pc.t = quadrantStartingAngle[quadrantIndex] + (quadrantSpacing[quadrantIndex] * index);
+                });
+                var option = $('<option></option>')
+                        .text(value['quadrant'])
+                        .val(quadrantStartingAngle[quadrantIndex]);
+
+                $('#department')
+                        .append(option);
+
+
+            });
+
+            $('#department').val(quadrantStartingAngle[0]).trigger('change');
+        }
+        var sample_data = [
+            { "quadrant": "Techniques",
+                "left": 45,
+                "top": 18,
+                "color": "#8FA227",
+                "items": [
+                    {"name": "Database based Integration", "pc": {"r": 350, "t": 135}, "movement": "t", "blipSize": 700},
+                    {"name": "Scrum certification", "pc": {"r": 350, "t": 95}, "movement": "c", "url": "http://www.google.com"}
+                ]
+            }
+        ];
+    </script>
+</head>
+
+<body onload="init(h,w);getData();">
+<h1 id="title"
+    style="position: absolute; top: 0; width: 1350px; text-align: center; font-family: Arial; color:#1f77b4;"></h1>
+<select id="category" onchange="changeRadarData(this.options[this.selectedIndex])">
+</select>
+<select id="department" onchange="drawRadar(this.options[this.selectedIndex])">
+</select>
+<div id="radar" style="position: absolute; top:30; left:0;"></div>
+</body>
+</html>

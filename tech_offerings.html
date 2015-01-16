@@ -1,0 +1,363 @@
+<html>
+<head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+    <script type="text/javascript" charset="utf-8" src="lib/d3.js"></script>
+    <script type="text/javascript" charset="utf-8" src="lib/underscore.js"></script>
+    <script type="text/javascript" charset="utf-8" src="lib/HextoRGB.js"></script>
+    <script type="text/javascript" charset="utf-8" src="utils.js"></script>
+    <script type="text/javascript" charset="utf-8" src="radars/radarData.js"></script>
+    <script type="text/javascript" src="radar.js" charset="utf-8"></script>
+    <script type="text/template" id="legend-template">
+    <div class="radar-legend">
+        
+       <% _.each(items,function(item, key, arr) { %>
+          <div class=ring-legend-container>
+          <% if(item.items.length > 0) { %>
+             <div class="ring-legend-header"><%= item.title %></div>
+             <div class="ring-items" style="border:0;border-left:7px solid <%= item.color %>"> 
+                <% _.each(item.items,function(childItem, childKey, childArr) { %>
+                    <div id="legend-<%= ++parent.pointIndex%>">
+                    <div class="legend-index"><%= parent.pointIndex %>.</div>
+                    <div class="legend-item"><%= childItem.name %></div>
+                    <% if(childItem.movement == 't')  { %>
+                        <div class="legend-new">new</div>
+
+                <% } %>
+                </div>
+                <%    }); %>
+                </div>
+             <% } %>
+           </div>
+       <% }); %>
+       </div>
+   </script>
+   <style type="text/css">
+   .left-padding, .right-padding{
+    width:300px;
+    display: inline-block;
+   }
+   .top-padding, .bottom-padding{
+    height: 300px;
+   }
+   #tech-radar
+   {
+    display: inline-block;
+   }
+   .legend-container
+   {
+    position: absolute;
+    width: 300px;
+    max-height: 500px;
+
+    overflow: hidden;
+   }
+   .ring-legend-container
+   {
+    padding: 2px;
+   }
+   .legend-container.quadrant-1{
+    left: 0;
+    top:0;
+   }
+   .legend-container.quadrant-2{
+    right: 0;
+    top:0;
+   }
+   .legend-container.quadrant-3{
+    left: 0;
+    bottom:0;
+   }
+   .legend-container.quadrant-4{
+    bottom: 0;
+    right:0;
+   }
+   .ring-legend-header
+   {
+    width:50px;
+    text-align: right;
+   }
+   .ring-items
+   {
+    width:200px;
+    min-height: 30px;
+   }
+   .ring-items .legend-index, .ring-items .legend-item,.ring-items .legend-new{
+    margin-left: 5px;
+    display: inline-block;
+        text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;    
+    max-width: 150px;
+   }
+   .ring-legend-header, .ring-items
+   {
+    display: inline-block;
+    vertical-align: top;
+   }
+   .radar-container
+   {
+    position: relative; 
+   }
+   .radar-legend
+   {
+    max-height: 400px;
+    overflow-y: auto;
+    overflow-x: hidden;
+   }
+   .legend-header
+   {
+    font-size: 22px;
+    text-align: center;
+   }
+   #quadrant-1-legend,#quadrant-2-legend,#quadrant-3-legend,#quadrant-4-legend
+   {
+    height: 400px;
+   }
+.quadrant-1 .legend-header,.quadrant-2 .legend-header
+{
+    padding-top: 50px;
+}
+.quadrant-4 .legend-header,.quadrant-3 .legend-header
+{
+    padding-bottom: 50px;
+}
+   </style>
+    <script>
+  (function($) {
+
+        var categoriesCreated = false;
+        var csvData = [];
+        var csvDataCleaned = [];
+        var categories = [];
+        var h = 400;
+        var w = 400;
+        radar_data = [];
+    $.ajax({
+           url: 'data-43.csv',
+           success: function (data) {            
+                createRadar(data);
+           },
+           error: function(data) {
+              if(data.status == 200) {
+                debugger;
+                createRadar(data);
+              }
+           },
+           type: 'GET'
+    });
+
+function changeRadarData(optionTarget) {
+
+$('#tech-radar').empty();
+
+var option = optionTarget.target.selectedOptions[0].text;
+            var categoryCsvData = _.filter(csvDataCleaned, function (element) {
+                return element.indexOf(option) === 0;
+            });
+
+            setRadarData(categoryCsvData);
+
+            $('#tech-title').text(option);
+        }
+        function setRadarData(categoryArray) {
+            radar_data = [];
+            var lines = categoryArray;
+            var createdQuadrants = [];
+            $.each(lines, function (index, value) {
+                var obj = {};
+                var valueArray = value.split(',');
+                var quadrant = valueArray[1];
+                if (createdQuadrants.indexOf(quadrant) < 0 && createdQuadrants.length < 4) {
+                    obj['quadrant'] = quadrant;
+                    radar_data.push(obj);
+                    createdQuadrants.push(quadrant);
+                }
+            });
+
+            if (typeof radar_data[0] !== 'undefined') {
+                radar_data[0]['left'] = 45;
+                radar_data[0]['top'] = 45;
+                radar_data[0]['color'] = "#8FA227";
+                radar_data[0]['items'] = [];
+            }
+            if (typeof radar_data[1] !== 'undefined') {
+                radar_data[1]['left'] = w - 200 + 30;
+                radar_data[1]['top'] = 18;
+                radar_data[1]['color'] = "#587486";
+                radar_data[1]['items'] = [];
+            }
+            if (typeof radar_data[2] !== 'undefined') {
+                radar_data[2]['left'] = 45;
+                radar_data[2]['top'] = (h / 2 + 18);
+                radar_data[2]['color'] = "#DC6F1D";
+                radar_data[2]['items'] = [];
+            }
+            if (typeof radar_data[3] !== 'undefined') {
+                radar_data[3]['left'] = (w - 200 + 30);
+                radar_data[3]['top'] = (h / 2 + 18);
+                radar_data[3]['color'] = "#B70062";
+                radar_data[3]['items'] = [];
+            }
+            var directionOfTravelIncrementName = ['in', 'static', 'out'];
+            var ringName = ['Maintain', 'Invest', 'Watch','Exit'];
+            $.each(lines, function (index, value) {
+                var obj = {};
+                var valueArray = value.split(',');
+                var ring = valueArray[3];
+                var directionOfTravel = valueArray[4];
+                var url = valueArray[5];
+                var quadrantIndex = createdQuadrants.indexOf(valueArray[1]);
+                
+                var directionOfTravelIncrementValue = [20, 50, 80];
+                var radial = directionOfTravelIncrementValue[directionOfTravelIncrementName.indexOf(directionOfTravel.toLowerCase())];
+                switch (ring) {
+                    case 'Maintain':
+                        radial += 10;
+                        break;
+                    case 'Invest':
+                        radial += 100;
+                        break;
+                    case 'Watch':
+                        radial += 200;
+                        break;
+                    case 'Exit':
+                        radial += 305;
+                        break;
+                    default:
+                        break;
+                }
+                obj['name'] = valueArray[2];
+                obj['ring'] = ring;
+                obj['pc'] = {'r': radial, 't': 135};
+                obj['dot'] = directionOfTravel.toLowerCase();
+                obj['movement'] = 'c';
+                // Add the blipSize
+                obj['blipSize'] = valueArray[6];
+                if (typeof url !== 'undefined' && url !== '') {
+                    obj['url'] = url;
+                }
+                radar_data[quadrantIndex]['items'].push(obj);
+            });
+            var quadrantStartingAngle = [90, 0, 180, -90];
+            
+            
+            $.each(radar_data, function (radarIndex, radarValue) {
+                
+                radarValue['items'] = _.sortBy(radarValue['items'], function(item){ return ((ringName.indexOf(item.ring) * 100) + (directionOfTravelIncrementName.indexOf(item.dot))); });
+                var groupedItems = _.groupBy(radarValue['items'], function(item) { return item.ring; } );
+                $.each(groupedItems, function (groupKey, groupValue) {
+                    
+
+                        var dotGroup = _.groupBy(groupValue, function(item) { return item.dot; } );
+                        
+                            $.each(dotGroup, function(dotGroupIndex, dotGroupValue) {
+var quadrantSpacing = 85 / dotGroupValue.length;
+                                $.each(dotGroupValue, function(childGroupIndex, childGroupValue) {
+
+                                 this.pc.t = (quadrantSpacing * (childGroupIndex + 1));
+                             });
+                            });
+                    
+                });
+                
+
+
+            });
+            $('#tech-radar').trigger('draw');         
+        }
+function createRadar(data) {
+
+                csvData = data.split("\n").splice(2);
+                $.each(csvData, function (index, item) {
+                    var line = item.split(",");
+//                    log(line[10]); // category
+//                    log(line[11]); // quadrant
+//                    log(line[12]); // item
+//                    log(line[13]); // url
+//                    log(line[19]); // ring
+//                    log(line[20]); // ring depth
+//                    log('--');
+                    
+                    var category = line[10];
+                    if (categories.indexOf(category) < 0) {
+                        if (category !== '') {
+                            categories.push(category);
+                        }
+                    }
+                    if (line[10] !== '' && line[11] !== '' && line[12] !== '' && line[19] !== '' && line[20] !== '' && line[21]) {
+                        // 9 = Summary Category, 10 = Quadrant, 11 = items, 18 = A/S, 19 = DoT, 12 = URL, 20 = BlipSize
+                        csvDataCleaned.push(line[10] + ',' + line[11] + ',' + line[12] + ',' + line[19] + ',' + line[20] + ',' + line[13] + ',' + line[21]);
+                    }
+                    if (index == csvData.length - 1) {
+                        categoriesCreated = true;
+                        $.each(categories, function (index, item) {
+                            var categorySelect = document.getElementById('tech-category');
+                            var option = document.createElement('option');
+                            option.text = item;
+                            option.value = index;
+                            categorySelect.add(option);
+                            if (index == categories.length - 1) {
+                                $('#tech-category').val('0').trigger('change');
+                            }
+                        });
+                    }
+                });
+}
+window.setTimeout(function() {
+    $('#tech-category').change(changeRadarData);
+        
+});
+})(jQuery);
+
+
+</script>
+
+
+</head>
+
+<body onload="">
+<h1 id="title"
+    style="position: absolute; top: 0; width: 1350px; text-align: center; font-family: Arial;"></h1>
+<select id="tech-category">
+</select>
+<div class="radar-container">
+<div class="legend-container quadrant-1">
+<div id="quadrant-1-legend">
+
+
+</div>
+<div class="legend-header"></div>
+</div>
+<div class="legend-container quadrant-2">
+    
+<div id="quadrant-2-legend">
+
+
+</div>
+<div class="legend-header"></div>
+</div>
+<div class="legend-container quadrant-3">
+    <div class="legend-header"></div>
+<div id="quadrant-3-legend">
+
+
+</div>
+
+</div>
+<div class="legend-container quadrant-4">
+    <div class="legend-header"></div>
+<div id="quadrant-4-legend">
+
+
+</div>
+
+</div>
+<div class="top-padding"></div>
+<div class="left-padding"></div>
+<div id="tech-radar"></div>
+<div class="right-padding"></div>
+<div class="bottom-padding"></div>
+</div>
+</body>
+</html>

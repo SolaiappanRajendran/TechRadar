@@ -1,0 +1,52 @@
+<html><head><style>
+#drop{
+	border:2px dashed #bbb;
+	-moz-border-radius:5px;
+	-webkit-border-radius:5px;
+	border-radius:5px;
+	padding:25px;
+	text-align:center;
+	font:20pt bold,"Vollkorn";color:#bbb
+}
+#b64data{
+	width:100%;
+}
+</style>
+</head><body><b>JS-XLS AJAX Demo</b><br>
+<pre id="out"></pre>
+<br>
+<script src="lib/xls.js"></script>
+<script src="lib/shim.js"></script>
+<script>
+function to_csv(workbook) {
+
+		var csv = XLS.utils.make_json(workbook.Sheets['Technology strategy raw data v0']);
+
+	
+	return csv;
+}
+
+function process_wb(wb) {
+	var output = to_csv(wb);
+	debugger;
+	if(out.innerText === undefined) out.textContent = output;
+	else out.innerText = output;
+}
+
+var url = "https://sapient.box.com/shared/static/ybr7xbkqrigv41ezdei8vn6714re9p1l.xls";
+
+var oReq = new XMLHttpRequest();
+oReq.open("GET", url, true);
+oReq.responseType = "arraybuffer";
+oReq.onload = function(e) {
+	var arraybuffer = oReq.response;
+	var data = new Uint8Array(arraybuffer);
+	var arr = new Array();
+	for(var i = 0; i != data.length; ++i) arr[i] = data[i];
+	var wb = XLS.read(arr, {type:"array"});
+	process_wb(wb);
+}
+oReq.send();
+
+</script>
+</body></html>
