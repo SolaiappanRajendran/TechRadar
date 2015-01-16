@@ -23,7 +23,7 @@ http.createServer(function (request, response) {
         }
 
         if (fs.statSync(filename).isDirectory()) {
-            filename += '/tech_offerings.html';
+            filename += '/Demo.html';
         }
 
         fs.readFile(filename, "binary", function (err, file) {

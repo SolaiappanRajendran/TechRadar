@@ -12,7 +12,8 @@
 	width:100%;
 }
 </style>
-</head><body><b>JS-XLS AJAX Demo</b><br>
+</head><body><b>JS-XLS Demo</b><br>
+<h1>Make sure you have a sheet named "Data" in the Excel</h1>
 <pre id="out"></pre>
 <br>
 <script src="lib/xls.js"></script>
@@ -20,7 +21,7 @@
 <script>
 function to_csv(workbook) {
 
-		var csv = XLS.utils.make_json(workbook.Sheets['Technology strategy raw data v0']);
+		var csv = XLS.utils.make_csv(workbook.Sheets['Data']);
 
 	
 	return csv;
@@ -33,7 +34,7 @@ function process_wb(wb) {
 	else out.innerText = output;
 }
 
-var url = "https://sapient.box.com/shared/static/ybr7xbkqrigv41ezdei8vn6714re9p1l.xls";
+var url = "Tech-strategy-raw-data.xls";
 
 var oReq = new XMLHttpRequest();
 oReq.open("GET", url, true);
