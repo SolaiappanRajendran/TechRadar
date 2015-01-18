@@ -8,6 +8,8 @@
     <script type="text/javascript" charset="utf-8" src="utils.js"></script>
     <script type="text/javascript" charset="utf-8" src="radars/radarData.js"></script>
     <script type="text/javascript" src="radar.js" charset="utf-8"></script>
+<script src="lib/xls.js"></script>
+<script src="lib/shim.js"></script>
     <script type="text/template" id="legend-template">
     <div class="radar-legend">
         
@@ -128,32 +130,35 @@
 
         var categoriesCreated = false;
         var csvData = [];
-        var csvDataCleaned = [];
+        var excelData = [];
         var categories = [];
         var h = 400;
         var w = 400;
         radar_data = [];
-    $.ajax({
-           url: 'data-43.csv',
-           success: function (data) {            
-                createRadar(data);
-           },
-           error: function(data) {
-              if(data.status == 200) {
-                debugger;
-                createRadar(data);
-              }
-           },
-           type: 'GET'
-    });
+    var url = "Tech-strategy-raw-data.xls";
+
+var oReq = new XMLHttpRequest();
+oReq.open("GET", url, true);
+oReq.responseType = "arraybuffer";
+oReq.onload = function(e) {
+	var arraybuffer = oReq.response;
+	var data = new Uint8Array(arraybuffer);
+	var arr = new Array();
+	for(var i = 0; i != data.length; ++i) arr[i] = data[i];
+	var wb = XLS.read(arr, {type:"array"});
+	excelData = XLS.utils.make_json(wb.Sheets['Data']);
+
+createRadar();
+}
+oReq.send();
 
 function changeRadarData(optionTarget) {
 
 $('#tech-radar').empty();
 
 var option = optionTarget.target.selectedOptions[0].text;
-            var categoryCsvData = _.filter(csvDataCleaned, function (element) {
-                return element.indexOf(option) === 0;
+            var categoryCsvData = _.filter(excelData, function (element) {
+                return element['Technology Offerings'] == option;
             });
 
             setRadarData(categoryCsvData);
@@ -166,8 +171,8 @@ var option = optionTarget.target.selectedOptions[0].text;
             var createdQuadrants = [];
             $.each(lines, function (index, value) {
                 var obj = {};
-                var valueArray = value.split(',');
-                var quadrant = valueArray[1];
+                
+                var quadrant = value["Classification Quadrant"].replace('&', 'and');
                 if (createdQuadrants.indexOf(quadrant) < 0 && createdQuadrants.length < 4) {
                     obj['quadrant'] = quadrant;
                     radar_data.push(obj);
@@ -203,11 +208,11 @@ var option = optionTarget.target.selectedOptions[0].text;
             var ringName = ['Maintain', 'Invest', 'Watch','Exit'];
             $.each(lines, function (index, value) {
                 var obj = {};
-                var valueArray = value.split(',');
-                var ring = valueArray[3];
-                var directionOfTravel = valueArray[4];
-                var url = valueArray[5];
-                var quadrantIndex = createdQuadrants.indexOf(valueArray[1]);
+                
+                var ring = value["A/B"];
+                var directionOfTravel = value["DOT"];
+                var url = value["URL"];
+                var quadrantIndex = createdQuadrants.indexOf(value["Classification Quadrant"].replace('&', 'and'));
                 
                 var directionOfTravelIncrementValue = [20, 50, 80];
                 var radial = directionOfTravelIncrementValue[directionOfTravelIncrementName.indexOf(directionOfTravel.toLowerCase())];
@@ -227,13 +232,13 @@ var option = optionTarget.target.selectedOptions[0].text;
                     default:
                         break;
                 }
-                obj['name'] = valueArray[2];
+                obj['name'] = value["Blip Name"];
                 obj['ring'] = ring;
                 obj['pc'] = {'r': radial, 't': 135};
                 obj['dot'] = directionOfTravel.toLowerCase();
                 obj['movement'] = 'c';
                 // Add the blipSize
-                obj['blipSize'] = valueArray[6];
+                obj['blipSize'] = value["Blip Size"];
                 if (typeof url !== 'undefined' && url !== '') {
                     obj['url'] = url;
                 }
@@ -266,43 +271,24 @@ var quadrantSpacing = 85 / dotGroupValue.length;
             });
             $('#tech-radar').trigger('draw');         
         }
-function createRadar(data) {
-
-                csvData = data.split("\n").splice(2);
-                $.each(csvData, function (index, item) {
-                    var line = item.split(",");
-//                    log(line[10]); // category
-//                    log(line[11]); // quadrant
-//                    log(line[12]); // item
-//                    log(line[13]); // url
-//                    log(line[19]); // ring
-//                    log(line[20]); // ring depth
-//                    log('--');
-                    
-                    var category = line[10];
-                    if (categories.indexOf(category) < 0) {
-                        if (category !== '') {
-                            categories.push(category);
-                        }
-                    }
-                    if (line[10] !== '' && line[11] !== '' && line[12] !== '' && line[19] !== '' && line[20] !== '' && line[21]) {
-                        // 9 = Summary Category, 10 = Quadrant, 11 = items, 18 = A/S, 19 = DoT, 12 = URL, 20 = BlipSize
-                        csvDataCleaned.push(line[10] + ',' + line[11] + ',' + line[12] + ',' + line[19] + ',' + line[20] + ',' + line[13] + ',' + line[21]);
-                    }
-                    if (index == csvData.length - 1) {
-                        categoriesCreated = true;
-                        $.each(categories, function (index, item) {
+function createRadar() {
+  var techOfferings = [];
+                $.each(excelData, function (index, item) {
+                  var category = item['Technology Offerings'];
+                    if(techOfferings.indexOf(category) < 0 && category != '' && category != null) {
                             var categorySelect = document.getElementById('tech-category');
                             var option = document.createElement('option');
-                            option.text = item;
-                            option.value = index;
+                            option.text = category;
+                            option.value = category;
                             categorySelect.add(option);
-                            if (index == categories.length - 1) {
-                                $('#tech-category').val('0').trigger('change');
-                            }
+                            techOfferings.push(category);
+                            
+                          }
                         });
-                    }
-                });
+                $('#tech-category').val(techOfferings[0]);
+                window.setTimeout(function(){
+                $('#tech-category').trigger('change');
+              });
 }
 window.setTimeout(function() {
     $('#tech-category').change(changeRadarData);
