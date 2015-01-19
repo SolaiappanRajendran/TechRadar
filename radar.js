@@ -31,28 +31,23 @@ function quadrant_setup() {
 
 (function($) {
 var quadrantName;
-function init(h, w) {
-//    $('#title').text(document.title);
-}
 
-function triangle(svg, x, y, w) {
+function appendTriangle(svg, x, y, w) {
         return svg.append('path').attr('d', "M412.201,311.406c0.021,0,0.042,0,0.063,0c0.067,0,0.135,0,0.201,0c4.052,0,6.106-0.051,8.168-0.102c2.053-0.051,4.115-0.102,8.176-0.102h0.103c6.976-0.183,10.227-5.306,6.306-11.53c-3.988-6.121-4.97-5.407-8.598-11.224c-1.631-3.008-3.872-4.577-6.179-4.577c-2.276,0-4.613,1.528-6.48,4.699c-3.578,6.077-3.26,6.014-7.306,11.723C402.598,306.067,405.426,311.406,412.201,311.406").attr("stroke", "white").attr("stroke-width", 2).attr('transform', 'scale(' + (w / 34) + ') translate(' + (-404 + x * (34 / w) - 17) + ', ' + (-282 + y * (34 / w) - 17) + ')');
 };
-function circle(svg, x, y, w) {
+function appendCircle(svg, x, y, w) {
         return svg.append('path').attr('d', "M420.084,282.092c-1.073,0-2.16,0.103-3.243,0.313c-6.912,1.345-13.188,8.587-11.423,16.874c1.732,8.141,8.632,13.711,17.806,13.711c0.025,0,0.052,0,0.074-0.003c0.551-0.025,1.395-0.011,2.225-0.109c4.404-0.534,8.148-2.218,10.069-6.487c1.747-3.886,2.114-7.993,0.913-12.118C434.379,286.944,427.494,282.092,420.084,282.092").attr("stroke", "white").attr("stroke-width", 2).attr('transform', 'scale(' + (w / 34) + ') translate(' + (-404 + x * (34 / w) - 17) + ', ' + (-282 + y * (34 / w) - 17) + ')');
 };
-function rect(svg, x, y, w, h) {
+function appendRect(svg, x, y, w, h) {
     return svg.append('rect').attr('x', x).attr('y', y).attr('width', w).attr('height', h);
 };
-function rad(deg) {
+function getRadian(deg) {
     return deg * Math.PI / 180;
 };
-function quadPath(svg, id, innerRadius, outerRadius, fill, radius, startAngle, tx, ty) {
-    var arc = d3.svg.arc().innerRadius(innerRadius).outerRadius(outerRadius).startAngle(rad(startAngle)).endAngle(rad(startAngle + 90));
-    svg.append('path').attr('d', arc).attr('stroke-width', 2).attr('stroke', 'white').attr('fill', fill).attr('transform', 'translate(' + tx * radius * 2 + ', ' + ty * radius * 2 + ')');
-};
+
 function arc(svg, id, innerRadius, outerRadius, colour, radius, startAngle, tx, ty) {
-    quadPath(svg, id, innerRadius, outerRadius, colour, radius, startAngle, tx, ty);
+    var arc = d3.svg.arc().innerRadius(innerRadius).outerRadius(outerRadius).startAngle(getRadian(startAngle)).endAngle(getRadian(startAngle + 90));
+    svg.append('path').attr('d', arc).attr('stroke-width', 2).attr('stroke', 'white').attr('fill', colour).attr('transform', 'translate(' + tx * radius * 2 + ', ' + ty * radius * 2 + ')');
 };
 
 function quadrant(svg, id, quadrantRadius, scale, segments, startAngle, tx, ty, textColour) {
@@ -61,9 +56,7 @@ function quadrant(svg, id, quadrantRadius, scale, segments, startAngle, tx, ty, 
         arc(svg, id, segment.startRadius * scale, segment.endRadius * scale, segment[quadrantName].color, quadrantRadius, startAngle, tx, ty);        
     });
     
-   /* _(segments).each(function(segment) {
-        addLabel(svg, segment.title, segment.startRadius * scale, segment.endRadius * scale, quadrantRadius, tx, ty, textColour);
-    });*/
+  
 };
 
 function drawLabel (svg, id, quadrantRadius, scale, segments, startAngle, tx, ty, textColour) {
@@ -75,18 +68,25 @@ function drawLabel (svg, id, quadrantRadius, scale, segments, startAngle, tx, ty
 
 var createShape = function(point, parent, colour, x, y, pointWidth) {
     var shapeFunction = {
-        't': triangle,
-        'c': circle
+        't': appendTriangle,
+        'c': appendCircle
     }[point.movement];
     return shapeFunction(parent, x, y, pointWidth).attr('fill', colour).attr('stroke', 'red').attr('class', point.ring.toLowerCase() + '-point');
 };
-var colourLink = function(pointId, bgColor, color) {
-    $('#legend-' + pointId).css({
+var colourLink = function(pointId, bgColor, color, needFocus) {
+   var legendElement = $('#legend-' + pointId);
+    legendElement.css({
         'background-color': bgColor,
         'color': color
     });
+if(needFocus) {
+    var ringLegend = $(legendElement).parents('.ring-legend-container').position();
+    
+    var radarLegend = $(legendElement).parents('.radar-legend');
+    $(radarLegend).scrollTop(ringLegend.top);
+}
 };
-var fadeOtherpoints = function(pointId) {
+var blurOtherPoints = function(pointId) {
     d3.selectAll('a circle, a path').attr('opacity', 0.3);
     d3.select('#point-' + pointId).selectAll('circle, path').attr('fill', 'orange').attr('stroke', 'white').attr('opacity', 1.0);
     d3.select('#point-' + pointId).selectAll('text').attr('fill', 'white');
@@ -95,13 +95,14 @@ var restorepoints = function() {
     d3.selectAll('a path').attr('fill', 'white').attr('stroke','red').attr('opacity', 1.0);
      d3.selectAll('a').selectAll('text').attr('fill', 'black');
 };
-var unhighlight = function(pointId, pointColour) {
-    colourLink(pointId, '', '');
+var unhighlight = function(pointId, needFocus) {
+    colourLink(pointId, '', '', false);
+
     restorepoints();
 };
-var highlight = function(pointId, pointColour, textColour) {
-    colourLink(pointId, pointColour, textColour);
-    fadeOtherpoints(pointId);
+var highlight = function(pointId, pointColour, textColour, needFocus) {
+    colourLink(pointId, pointColour, textColour, needFocus);
+    blurOtherPoints(pointId);
 };
 var pointCoord = function(point, scaleFactor, quadrantRadius, tx, ty, startAngle) {
     var xI = 1;
@@ -117,12 +118,10 @@ var pointCoord = function(point, scaleFactor, quadrantRadius, tx, ty, startAngle
         xI = -1;
         yI = -1;
     }
-    console.log('start angle' + startAngle);
-    console.log('t:' + point.theta);
-    console.log(point.id);
+   
     return {
-        'x': Math.abs(Math.abs(point.radial * scaleFactor * Math.cos(rad(startAngle + point.theta))) + (xI) * tx * quadrantRadius * 2),
-        'y': Math.abs(Math.abs(point.radial * scaleFactor * Math.sin(rad(startAngle + point.theta))) + (yI) * ty * quadrantRadius * 2)
+        'x': Math.abs(Math.abs(point.radial * scaleFactor * Math.cos(getRadian(startAngle + point.theta))) + (xI) * tx * quadrantRadius * 2),
+        'y': Math.abs(Math.abs(point.radial * scaleFactor * Math.sin(getRadian(startAngle + point.theta))) + (yI) * ty * quadrantRadius * 2)
     };
 };
 
@@ -147,6 +146,7 @@ var drawpoint = function(point, svg, colour, scale, quadrantRadius, tx, ty, poin
     var coord = pointCoord(point, scale, quadrantRadius, tx, ty, startAngle);
     var link = svg.append('svg:a').attr({
         'id': 'point-' + point.id,
+        'target': '_blank',
         'xlink:href': point.nameUrl
     }).style({
         'text-decoration': 'none',
@@ -168,16 +168,16 @@ var drawpoint = function(point, svg, colour, scale, quadrantRadius, tx, ty, poin
         'text-anchor': 'middle'
     });
     link.on('touchstart', function() {
-        highlight(point.id, highlightPointColor, highlightTextColor);
+        highlight(point.id, highlightPointColor, highlightTextColor, true);
     });
     link.on('touchend', function() {
-        unhighlight(point.id, unHighlightPointColor, unHighlightTextColor);
+        unhighlight(point.id, true);
     });
     link.on('mouseenter', function() {
-        highlight(point.id, highlightPointColor, highlightTextColor);
+        highlight(point.id, highlightPointColor, highlightTextColor, true);
     });
     link.on('mouseleave', function() {
-        unhighlight(point.id, unHighlightPointColor, unHighlightTextColor);
+        unhighlight(point.id, true);
     });
 };
 
@@ -255,41 +255,31 @@ var CONFIG = {
     }],
     'quadrantData': quadrant_setup()
 };
-var drawQuadrant = function() {
-   
-};
-
-
-
 
 function on_leave() {
-    var id = $(this).data('point-id');
-    unhighlight(id);
+    var id = parseInt(this.id.replace('legend-', ''));
+    unhighlight(id, false);
 }
 
 function on_hover() {
-    var id = $(this).data('point-id');
-    var quadrant = $('#quadrant-point-list').data('quadrant');
-    highlight(id, quadrant_setup()[quadrant]['colour'], 'white');
+   var id = parseInt(this.id.replace('legend-', ''));
+    highlight(id, 'orange', 'white', false);
 }
 
 function on_click() {
-    var id = $(this).data('point-id');
-    var descriptionId = '#point-description-' + id;
-    var slideTime = 250;
-    if ($.fx.off) {
-        $(descriptionId).slideToggle();
-    } else {
-        $('.point-description').not(descriptionId).slideUp(slideTime);
-        $(descriptionId).delay(slideTime).slideToggle(slideTime);
-    }
+    var id = parseInt(this.id.replace('legend-', ''));
+    window.open($('#point-' + id).attr('href'));
 }
-$(document).ready(function() {
+$(document).ready(function(){
+    $('#tech-radar').on('draw', drawRadar);    
+})
+function bindEvents() {
+        
         $('div[id*=legend-]').click(on_click);
-        $('div[id*=legend-]').mouseleave(on_leave);
-        $('div[id*=legend-]').mouseover(on_hover);
-        $('#tech-radar').on('draw', drawRadar);
-});;
+        $('div[id*=legend-]').on('mouseout', on_leave);
+        $('div[id*=legend-]').on('mouseover',on_hover);
+        
+};
 
 
 
@@ -325,8 +315,8 @@ _(CONFIG.segmentData).each(function(segment) {
 
    
    // Borders
-        rect(svg, 400, 0, 3, 400 * 2).attr('fill', 'white');
-        rect(svg, 0, 400, 400 * 2, 3).attr('fill', 'white');
+        appendRect(svg, 400, 0, 3, 400 * 2).attr('fill', 'white');
+        appendRect(svg, 0, 400, 400 * 2, 3).attr('fill', 'white');
 var pointIndex = 0;
 var legendIndex = 0;
 
@@ -342,6 +332,7 @@ var quadrantIndex = 1;
 
         legendObject.items = [];
 
+        if(filteredData.length > 0) {
         _(CONFIG.segmentData).each(function(segment) {
             var ringLegendObject = {
                 color: segment[department].color,
@@ -351,6 +342,7 @@ var quadrantIndex = 1;
 
             legendObject.items.push(ringLegendObject);          
         });
+    }
         var templating = _.template($('#legend-template').html());
        $('#quadrant-' + (quadrantIndex) +'-legend').html(templating(legendObject));
 
@@ -394,7 +386,7 @@ var quadrantIndex = 1;
     
      });
 
-     
+    bindEvents();
 
 };
 

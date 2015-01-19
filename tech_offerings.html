@@ -16,10 +16,10 @@
        <% _.each(items,function(item, key, arr) { %>
           <div class=ring-legend-container>
           <% if(item.items.length > 0) { %>
-             <div class="ring-legend-header"><%= item.title %></div>
+             <div class="ring-legend-header" style="color:<%= parent.color %>"><%= item.title %></div>
              <div class="ring-items" style="border:0;border-left:7px solid <%= item.color %>"> 
                 <% _.each(item.items,function(childItem, childKey, childArr) { %>
-                    <div id="legend-<%= ++parent.pointIndex%>">
+                    <div id="legend-<%= ++parent.pointIndex%>" class ="legend-item-container">
                     <div class="legend-index"><%= parent.pointIndex %>.</div>
                     <div class="legend-item"><%= childItem.name %></div>
                     <% if(childItem.movement == 't')  { %>
@@ -35,6 +35,10 @@
        </div>
    </script>
    <style type="text/css">
+   .legend-item-container
+   {
+    cursor: pointer;
+   }
    .left-padding, .right-padding{
     width:300px;
     display: inline-block;
@@ -128,35 +132,30 @@
     <script>
   (function($) {
 
-        var categoriesCreated = false;
-        var csvData = [];
         var excelData = [];
-        var categories = [];
-        var h = 400;
-        var w = 400;
         radar_data = [];
-    var url = "Tech-strategy-raw-data.xls";
+        var url = "Tech-strategy-raw-data.xls";
 
-var oReq = new XMLHttpRequest();
-oReq.open("GET", url, true);
-oReq.responseType = "arraybuffer";
-oReq.onload = function(e) {
-	var arraybuffer = oReq.response;
-	var data = new Uint8Array(arraybuffer);
-	var arr = new Array();
-	for(var i = 0; i != data.length; ++i) arr[i] = data[i];
-	var wb = XLS.read(arr, {type:"array"});
-	excelData = XLS.utils.make_json(wb.Sheets['Data']);
+        var oReq = new XMLHttpRequest();
+        oReq.open("GET", url, true);
+        oReq.responseType = "arraybuffer";
+        oReq.onload = function(e) {
+        	var arraybuffer = oReq.response;
+        	var data = new Uint8Array(arraybuffer);
+        	var arr = [];
+        	for(var i = 0; i != data.length; ++i) arr[i] = data[i];
+        	var wb = XLS.read(arr, {type:"array"});
+        	excelData = XLS.utils.make_json(wb.Sheets['Data']);
 
-createRadar();
-}
-oReq.send();
+          createRadar();
+        }
+        oReq.send();
 
 function changeRadarData(optionTarget) {
 
 $('#tech-radar').empty();
 
-var option = optionTarget.target.selectedOptions[0].text;
+          var option = optionTarget.target.selectedOptions[0].text;
             var categoryCsvData = _.filter(excelData, function (element) {
                 return element['Technology Offerings'] == option;
             });
@@ -169,81 +168,62 @@ var option = optionTarget.target.selectedOptions[0].text;
             radar_data = [];
             var lines = categoryArray;
             var createdQuadrants = [];
-            $.each(lines, function (index, value) {
-                var obj = {};
-                
-                var quadrant = value["Classification Quadrant"].replace('&', 'and');
-                if (createdQuadrants.indexOf(quadrant) < 0 && createdQuadrants.length < 4) {
-                    obj['quadrant'] = quadrant;
-                    radar_data.push(obj);
-                    createdQuadrants.push(quadrant);
-                }
-            });
-
-            if (typeof radar_data[0] !== 'undefined') {
-                radar_data[0]['left'] = 45;
-                radar_data[0]['top'] = 45;
-                radar_data[0]['color'] = "#8FA227";
-                radar_data[0]['items'] = [];
-            }
-            if (typeof radar_data[1] !== 'undefined') {
-                radar_data[1]['left'] = w - 200 + 30;
-                radar_data[1]['top'] = 18;
-                radar_data[1]['color'] = "#587486";
-                radar_data[1]['items'] = [];
-            }
-            if (typeof radar_data[2] !== 'undefined') {
-                radar_data[2]['left'] = 45;
-                radar_data[2]['top'] = (h / 2 + 18);
-                radar_data[2]['color'] = "#DC6F1D";
-                radar_data[2]['items'] = [];
-            }
-            if (typeof radar_data[3] !== 'undefined') {
-                radar_data[3]['left'] = (w - 200 + 30);
-                radar_data[3]['top'] = (h / 2 + 18);
-                radar_data[3]['color'] = "#B70062";
-                radar_data[3]['items'] = [];
-            }
             var directionOfTravelIncrementName = ['in', 'static', 'out'];
             var ringName = ['Maintain', 'Invest', 'Watch','Exit'];
-            $.each(lines, function (index, value) {
+
+            var categories = _.groupBy(lines, function(item) { return item["Classification Quadrant"].replace('&', 'and'); });
+
+            $.each(categories, function (index, value) { 
+              if(index != '' && index != undefined && value != null) {
                 var obj = {};
+                obj['quadrant'] = index;
+                obj['items'] = [];
+                $.each(value, function(recordIndex, recordObject) {
                 
-                var ring = value["A/B"];
-                var directionOfTravel = value["DOT"];
-                var url = value["URL"];
-                var quadrantIndex = createdQuadrants.indexOf(value["Classification Quadrant"].replace('&', 'and'));
-                
-                var directionOfTravelIncrementValue = [20, 50, 80];
-                var radial = directionOfTravelIncrementValue[directionOfTravelIncrementName.indexOf(directionOfTravel.toLowerCase())];
-                switch (ring) {
-                    case 'Maintain':
-                        radial += 10;
-                        break;
-                    case 'Invest':
-                        radial += 100;
-                        break;
-                    case 'Watch':
-                        radial += 200;
-                        break;
-                    case 'Exit':
-                        radial += 305;
-                        break;
-                    default:
-                        break;
-                }
-                obj['name'] = value["Blip Name"];
-                obj['ring'] = ring;
-                obj['pc'] = {'r': radial, 't': 135};
-                obj['dot'] = directionOfTravel.toLowerCase();
-                obj['movement'] = 'c';
-                // Add the blipSize
-                obj['blipSize'] = value["Blip Size"];
-                if (typeof url !== 'undefined' && url !== '') {
-                    obj['url'] = url;
-                }
-                radar_data[quadrantIndex]['items'].push(obj);
+                  var currentObject = {};
+                  var ring = recordObject["A/B"];
+                  var directionOfTravel = recordObject["DOT"];
+                  var url = recordObject["URL"];
+                  var quadrantIndex = createdQuadrants.indexOf(index);
+                  
+                  var directionOfTravelIncrementValue = [20, 50, 80];
+                  var radial = directionOfTravelIncrementValue[directionOfTravelIncrementName.indexOf(directionOfTravel.toLowerCase())];
+                  switch (ring) {
+                      case 'Maintain':
+                          radial += 10;
+                          break;
+                      case 'Invest':
+                          radial += 100;
+                          break;
+                      case 'Watch':
+                          radial += 200;
+                          break;
+                      case 'Exit':
+                          radial += 305;
+                          break;
+                      default:
+                          break;
+                  }
+                  currentObject['name'] = recordObject["Blip Name"];
+                  currentObject['ring'] = ring;
+                  currentObject['pc'] = {'r': radial, 't': 135};
+                  currentObject['dot'] = directionOfTravel.toLowerCase();
+                  currentObject['movement'] = 'c';
+                  // Add the blipSize
+                  currentObject['blipSize'] = recordObject["Blip Size"];
+                  if (typeof url !== 'undefined' && url !== '') {
+                      currentObject['url'] = url;
+                  }
+                  obj['items'].push(currentObject);
+
+                 
+              });
+               radar_data.push(obj);
+                createdQuadrants.push(index);
+              }
             });
+
+          
             var quadrantStartingAngle = [90, 0, 180, -90];
             
             
@@ -257,7 +237,7 @@ var option = optionTarget.target.selectedOptions[0].text;
                         var dotGroup = _.groupBy(groupValue, function(item) { return item.dot; } );
                         
                             $.each(dotGroup, function(dotGroupIndex, dotGroupValue) {
-var quadrantSpacing = 85 / dotGroupValue.length;
+                                var quadrantSpacing = 85 / dotGroupValue.length;
                                 $.each(dotGroupValue, function(childGroupIndex, childGroupValue) {
 
                                  this.pc.t = (quadrantSpacing * (childGroupIndex + 1));
@@ -302,9 +282,8 @@ window.setTimeout(function() {
 
 </head>
 
-<body onload="">
-<h1 id="title"
-    style="position: absolute; top: 0; width: 1350px; text-align: center; font-family: Arial;"></h1>
+<body>
+
 <select id="tech-category">
 </select>
 <div class="radar-container">
