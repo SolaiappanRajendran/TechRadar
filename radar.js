@@ -33,10 +33,10 @@ function quadrant_setup() {
 var quadrantName;
 
 function appendTriangle(svg, x, y, w) {
-        return svg.append('path').attr('d', "M412.201,311.406c0.021,0,0.042,0,0.063,0c0.067,0,0.135,0,0.201,0c4.052,0,6.106-0.051,8.168-0.102c2.053-0.051,4.115-0.102,8.176-0.102h0.103c6.976-0.183,10.227-5.306,6.306-11.53c-3.988-6.121-4.97-5.407-8.598-11.224c-1.631-3.008-3.872-4.577-6.179-4.577c-2.276,0-4.613,1.528-6.48,4.699c-3.578,6.077-3.26,6.014-7.306,11.723C402.598,306.067,405.426,311.406,412.201,311.406").attr("stroke", "white").attr("stroke-width", 2).attr('transform', 'scale(' + (w / 34) + ') translate(' + (-404 + x * (34 / w) - 17) + ', ' + (-282 + y * (34 / w) - 17) + ')');
+        return svg.append('path').attr('d', "M412.201,311.406c0.021,0,0.042,0,0.063,0c0.067,0,0.135,0,0.201,0c4.052,0,6.106-0.051,8.168-0.102c2.053-0.051,4.115-0.102,8.176-0.102h0.103c6.976-0.183,10.227-5.306,6.306-11.53c-3.988-6.121-4.97-5.407-8.598-11.224c-1.631-3.008-3.872-4.577-6.179-4.577c-2.276,0-4.613,1.528-6.48,4.699c-3.578,6.077-3.26,6.014-7.306,11.723C").attr("stroke", "white").attr("stroke-width", 2).attr('transform', 'scale(' + (w / 34) + ') translate(' + (-404 + x * (34 / w) - 17) + ', ' + (-282 + y * (34 / w) - 17) + ')');
 };
 function appendCircle(svg, x, y, w) {
-        return svg.append('path').attr('d', "M420.084,282.092c-1.073,0-2.16,0.103-3.243,0.313c-6.912,1.345-13.188,8.587-11.423,16.874c1.732,8.141,8.632,13.711,17.806,13.711c0.025,0,0.052,0,0.074-0.003c0.551-0.025,1.395-0.011,2.225-0.109c4.404-0.534,8.148-2.218,10.069-6.487c1.747-3.886,2.114-7.993,0.913-12.118C434.379,286.944,427.494,282.092,420.084,282.092").attr("stroke", "white").attr("stroke-width", 2).attr('transform', 'scale(' + (w / 34) + ') translate(' + (-404 + x * (34 / w) - 17) + ', ' + (-282 + y * (34 / w) - 17) + ')');
+        return svg.append('circle').attr('cx', x).attr("cy", y).attr("stroke-width", 1).attr('r', 12).attr('stroke', '#F04923').attr('fill', 'white');
 };
 function appendRect(svg, x, y, w, h) {
     return svg.append('rect').attr('x', x).attr('y', y).attr('width', w).attr('height', h);
@@ -71,14 +71,19 @@ var createShape = function(point, parent, colour, x, y, pointWidth) {
         't': appendTriangle,
         'c': appendCircle
     }[point.movement];
-    return shapeFunction(parent, x, y, pointWidth).attr('fill', colour).attr('stroke', 'red').attr('class', point.ring.toLowerCase() + '-point');
+    return shapeFunction(parent, x, y, pointWidth).attr('fill', colour).attr('stroke', '#F04923').attr('class', point.ring.toLowerCase() + '-point');
 };
 var colourLink = function(pointId, bgColor, color, needFocus) {
-   var legendElement = $('#legend-' + pointId);
-    legendElement.css({
-        'background-color': bgColor,
-        'color': color
+    var functionCall = 'addClass';
+    if(!color) {
+        functionCall = 'removeClass';
+    }
+
+   var legendElement = $('#legend-' + pointId)[functionCall]('highlight');
+    /*legendElement.css({
+        'background-color': bgColor        
     });
+    $(legendElement).children().css('color', color);*/
 if(needFocus) {
     var ringLegend = $(legendElement).parents('.ring-legend-container').position();
     
@@ -88,15 +93,15 @@ if(needFocus) {
 };
 var blurOtherPoints = function(pointId) {
     d3.selectAll('a circle, a path');
-    d3.select('#point-' + pointId).selectAll('circle, path').attr('fill', 'orange').attr('stroke', 'white');
+    d3.select('#point-' + pointId).selectAll('circle, path').attr('fill', '#F04923').attr('stroke', 'white').attr('stroke-width', 2);
     d3.select('#point-' + pointId).selectAll('text').attr('fill', 'white');
 };
 var restorepoints = function() {
-    d3.selectAll('a path').attr('fill', 'white').attr('stroke','red');
+    d3.selectAll('a path, a circle').attr('fill', 'white').attr('stroke','#F04923').attr('stroke-width', 1);
      d3.selectAll('a').selectAll('text').attr('fill', 'black');
 };
 var unhighlight = function(pointId, needFocus) {
-    colourLink(pointId, '', '', false);
+    colourLink(pointId, undefined, undefined, false);
 
     restorepoints();
 };
@@ -137,7 +142,8 @@ function addLabel(svg, text, startArc, endArc, quadrantRadius, tx, ty, colour) {
                 "fill": colour,
                 'transform': 'translate(' + (x - 5) + ', ' + (y - 5) + ') rotate(-90)'
             }).style({
-                'font-size': '16px'
+                'font-size': '14pt',
+                'font-family': 'SapientSansLight, Arial'
             }).text(text.toUpperCase());
         };
 
@@ -152,18 +158,15 @@ var drawpoint = function(point, svg, colour, scale, quadrantRadius, tx, ty, poin
         'text-decoration': 'none',
         'cursor': 'pointer'
     });
-        var highlightPointColor = 'orange', highlightTextColor = 'white';
+        var highlightPointColor = '#F04923', highlightTextColor = 'white';
     var unHighlightPointColor = 'white', unHighlightTextColor = 'black';
     createShape(point, link, unHighlightPointColor, coord.x, coord.y, pointWidth);
 
     var textY = point.movement === 't' ? coord.y + 6 : coord.y + 4;
     link.append('text').attr({
         'x': coord.x,
-        'y': textY,
-        'font-size': pointFontSize,
-        'font-style': 'italic',
-        'font-weight': 'bold',
-        'fill': unHighlightTextColor
+        'y': textY,        
+        'fill': '#000'
     }).text(point.radarId).style({
         'text-anchor': 'middle'
     });
@@ -192,48 +195,48 @@ var CONFIG = {
         'startRadius': 0,
         'endRadius': 100,
         'languages-and-frameworks': {
-            color: '#3A849B'
+            color: '#36839C'
         },
         'platforms': {
-            color: '#3595C8'
+            color: '#2E94CB'
         },
         'tools': {
-            color: '#66D0EA'
+            color: '#60D0EB'
         },
         'techniques': {
-            color: '#527173'
+            color: '#507173'
         }
     }, {
         'title': 'Invest',
         'startRadius': 101,
         'endRadius': 200,
         'languages-and-frameworks': {
-            color: '#6BA3B4'
+            color: '#69A2B5'
         },
         'platforms': {
-            color: '#67AFD7'
+            color: '#64AED9'
         },
         'tools': {
-            color: '#8DDBEF'
+            color: '#89DCEE'
         },
         'techniques': {
-            color: '#7C9496'
+            color: '#7B9496'
         }
     }, {
         'title': 'Watch',
         'startRadius': 201,
         'endRadius': 300,
         'languages-and-frameworks': {
-            color: '#9DC1CD'
+            color: '#9FC1CE'
         },
         'platforms': {
-            color: '#9BCAE4'
+            color: '#98CAE5'
         },
         'tools': {
-            color: '#B3E7E5'
+            color: '#B0E7F3'
         },
         'techniques': {
-            color: '#A8B8B8'
+            color: '#A7B8B9'
         }
         
     }, {
@@ -241,13 +244,13 @@ var CONFIG = {
         'startRadius': 301,
         'endRadius': 400,
         'languages-and-frameworks': {
-            color: '#C1D8E0'
+            color: '#C0D8E1'
         },
         'platforms': {
-            color: '#C1DEEE'
+            color: '#BFDEEF'
         },
         'tools': {
-            color: '#CFF0F9'
+            color: '#CEF0F9'
         },
         'techniques': {
             color: '#C8D2D3'
@@ -263,7 +266,7 @@ function on_leave() {
 
 function on_hover() {
    var id = parseInt(this.id.replace('legend-', ''));
-    highlight(id, 'orange', 'white', false);
+    highlight(id, '#F04923', 'white', false);
 }
 
 function on_click() {
