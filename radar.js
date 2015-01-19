@@ -87,12 +87,12 @@ if(needFocus) {
 }
 };
 var blurOtherPoints = function(pointId) {
-    d3.selectAll('a circle, a path').attr('opacity', 0.3);
-    d3.select('#point-' + pointId).selectAll('circle, path').attr('fill', 'orange').attr('stroke', 'white').attr('opacity', 1.0);
+    d3.selectAll('a circle, a path');
+    d3.select('#point-' + pointId).selectAll('circle, path').attr('fill', 'orange').attr('stroke', 'white');
     d3.select('#point-' + pointId).selectAll('text').attr('fill', 'white');
 };
 var restorepoints = function() {
-    d3.selectAll('a path').attr('fill', 'white').attr('stroke','red').attr('opacity', 1.0);
+    d3.selectAll('a path').attr('fill', 'white').attr('stroke','red');
      d3.selectAll('a').selectAll('text').attr('fill', 'black');
 };
 var unhighlight = function(pointId, needFocus) {
@@ -306,7 +306,7 @@ function drawRadar() {
 
 
 
-_(CONFIG.segmentData).each(function(segment) {
+    _(CONFIG.segmentData).each(function(segment) {
         
         addLabel(svg, segment.title, segment.startRadius * scaleFactor, segment.endRadius * scaleFactor, CONFIG.quadrantRadius, 0.5, 0.5, 'white');        
     });
@@ -315,8 +315,8 @@ _(CONFIG.segmentData).each(function(segment) {
 
    
    // Borders
-        appendRect(svg, 400, 0, 3, 400 * 2).attr('fill', 'white');
-        appendRect(svg, 0, 400, 400 * 2, 3).attr('fill', 'white');
+appendRect(svg, 400, 0, 3, 400 * 2).attr('fill', 'white');
+appendRect(svg, 0, 400, 400 * 2, 3).attr('fill', 'white');
 var pointIndex = 0;
 var legendIndex = 0;
 
@@ -369,12 +369,9 @@ var quadrantIndex = 1;
 
        
 
-        if (points !== undefined) {
-            quadrantName = department;
-            var quadrantData = CONFIG.quadrantData[quadrantName];
-            var scaleFactor = CONFIG.quadrantRadius / CONFIG.maxRadius;
-            
-
+        if (points !== undefined) {           
+            var quadrantData = CONFIG.quadrantData[department];
+    
                 _(points).each(function(point) {
                     drawpoint(point, svg, quadrantData.colour, scaleFactor, CONFIG.quadrantRadius, quadrantData.tx, quadrantData.ty, CONFIG.pointWidth, CONFIG.pointFontSize, quadrantData.startAngle);
                 });

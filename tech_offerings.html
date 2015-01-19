@@ -157,7 +157,7 @@ $('#tech-radar').empty();
 
           var option = optionTarget.target.selectedOptions[0].text;
             var categoryCsvData = _.filter(excelData, function (element) {
-                return element['Technology Offerings'] == option;
+                return element['Bottom Up Category'] == option;
             });
 
             setRadarData(categoryCsvData);
@@ -254,7 +254,7 @@ $('#tech-radar').empty();
 function createRadar() {
   var techOfferings = [];
                 $.each(excelData, function (index, item) {
-                  var category = item['Technology Offerings'];
+                  var category = item['Bottom Up Category'];
                     if(techOfferings.indexOf(category) < 0 && category != '' && category != null) {
                             var categorySelect = document.getElementById('tech-category');
                             var option = document.createElement('option');
