@@ -260,10 +260,10 @@ $('#tech-radar').empty();
                         var dotGroup = _.groupBy(groupValue, function(item) { return item.dot; } );
                         
                             $.each(dotGroup, function(dotGroupIndex, dotGroupValue) {
-                                var quadrantSpacing = 85 / dotGroupValue.length;
+                                var quadrantSpacing = 90 / dotGroupValue.length;
                                 $.each(dotGroupValue, function(childGroupIndex, childGroupValue) {
 
-                                 this.pc.t = (quadrantSpacing * (childGroupIndex + 1));
+                                 this.pc.t = (quadrantSpacing * (childGroupIndex)) + (quadrantSpacing / 2);
                              });
                             });
                     
