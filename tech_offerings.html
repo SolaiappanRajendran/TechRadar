@@ -43,12 +43,17 @@
    {
     cursor: pointer;
    }
+    .bottom-padding{
+    background-image: url(sapient_logo.jpg);
+    background-repeat: no-repeat;
+    background-position: center center;
+   }
    .left-padding, .right-padding{
     width:250px;
     display: inline-block;
    }
    .top-padding, .bottom-padding{
-    height: 300px;
+    height: 200px;
    }
    #tech-radar
    {
@@ -129,7 +134,7 @@
    }
    .radar-legend
    {
-    max-height: 400px;
+    max-height: 300px;
     overflow-y: auto;
     overflow-x: hidden;
     /*position: absolute;*/
@@ -153,7 +158,7 @@
    #quadrant-1-legend,#quadrant-2-legend,#quadrant-3-legend,#quadrant-4-legend
    {
     
-    height: 400px;    
+    height: 300px;    
     position: relative;
    }
    a[id*=point-] text{
@@ -180,12 +185,12 @@
         oReq.open("GET", url, true);
         oReq.responseType = "arraybuffer";
         oReq.onload = function(e) {
-        	var arraybuffer = oReq.response;
-        	var data = new Uint8Array(arraybuffer);
-        	var arr = [];
-        	for(var i = 0; i != data.length; ++i) arr[i] = data[i];
-        	var wb = XLS.read(arr, {type:"array"});
-        	excelData = XLS.utils.make_json(wb.Sheets['Data']);
+          var arraybuffer = oReq.response;
+          var data = new Uint8Array(arraybuffer);
+          var arr = [];
+          for(var i = 0; i != data.length; ++i) arr[i] = data[i];
+          var wb = XLS.read(arr, {type:"array"});
+          excelData = XLS.utils.make_json(wb.Sheets['Data']);
 
           createRadar();
         }
@@ -310,15 +315,53 @@ function createRadar() {
                 $('#tech-category').val(techOfferings[0]);
                 
                   $('#tech-category').trigger('change');
+    $('.quadrant-2,.quadrant-4').css({ right: 'auto',
+                                     left: $('.left-padding').width() + $('#tech-radar').width() - 50
+                                    });
+  $('.quadrant-1,.quadrant-3').css({ 
+                                     left: $('#tech-radar').position().left - 300
+                                    });
 
-                  $('.quadrant-2,.quadrant-4').css({ right: 'auto',
-                                                     left: $('.left-padding').width() + $('#tech-radar').width() - 50
-                                                    });
 
             
 }
+
+
+function setLeftRightPaddingWidth() {
+  var minPadding = 250;
+
+  var windowWidth = $(window).width();
+
+
+
+  var quadrantRadius = 248;
+  var widthOfRadar = quadrantRadius * 2;
+  var extraPadding = (windowWidth - widthOfRadar - (minPadding * 2))/2;
+
+
+
+  $('.left-padding').width(minPadding + (extraPadding < 0 ? 0: extraPadding));
+  $('.right-padding').width(minPadding + (extraPadding < 0 ? 0: extraPadding));
+  debugger;
+      $('.quadrant-2,.quadrant-4').css({ right: 'auto',
+                                     left: $('.left-padding').width() + $('#tech-radar').width() - 50
+                                    });
+  $('.quadrant-1,.quadrant-3').css({ 
+                                     left: $('#tech-radar').position().left - minPadding - 50
+                                    });
+
+}
+
+$(window).resize(function() {
+  $('#tech-category').trigger('change');
+  window.setTimeout(function() {
+    setLeftRightPaddingWidth();
+  });
+});
+
 window.setTimeout(function() {
     $('#tech-category').change(changeRadarData);
+    setLeftRightPaddingWidth();
         
 });
 })(jQuery);
