@@ -35,6 +35,10 @@
        </div>
    </script>
    <style type="text/css">
+   @font-face {
+    font-family: SapientSansLight;
+    src: url(lib/SPNTSL.TTF);
+}
    body
    {
     background-color: white;
@@ -48,6 +52,7 @@
 
     width: 500px;
     position: absolute;
+    color: #807F83;
     top: 180px;
     font-size: 10pt;
     font-family: SapientSansLight, Arial;
@@ -82,6 +87,15 @@ transform-origin: 50% 50%;
 /* IE8 or less - using the "\9" CSS hack so that other browsers will ignore these lines */
 -ms-filter: "progid:DXImageTransform.Microsoft.Matrix(SizingMethod='auto expand', M11=0.7071067811865476, M12=-0.7071067811865475, M21=0.7071067811865475, M22=0.7071067811865476)"; /* IE8 */
    }
+   .title-menu-arrow.white{
+    width: 10px;
+    height: 10px;
+    margin-top: -5px;
+    margin-left: -5px;
+    border: 1px solid white;
+    border-left-width: 0;
+    border-top-width: 0;
+   }
    .category-menu-item
    {
       height: 25px;
@@ -106,24 +120,24 @@ transform-origin: 50% 50%;
    
    .radar-chart-title
    {
-    width: 247px;
-    height: 46px;
+    width: 297px;
+    height: 40px;
     background-color: #F04923;
     color: white;
     font-size: 14pt;
     text-transform: uppercase;
     font-family: SapientSansLight, Arial;
-    padding-top: 6px;
+    padding-top: 12px;
     text-align: center;
     top: 100px;
-    margin-left: -123.5px;
+    margin-left: -148.5px;
     position: absolute;
    }
    .radar-chart-category-menu
    {
-    width: 247px;      
+    width: 297px;      
     top: 152px;
-    margin-left: -123.5px;
+    margin-left: -148.5px;
     position: absolute;
     display: none;
    }
@@ -145,7 +159,7 @@ transform-origin: 50% 50%;
     display: inline-block;
    }
    .top-padding, .bottom-padding{
-    height: 200px;
+    height: 250px;
    }
    #tech-radar
    {
@@ -163,6 +177,10 @@ transform-origin: 50% 50%;
    {
     padding: 2px;
    }
+   .legend-index {
+      min-width: 16px;
+      text-align: right;
+    }
    .ring-legend-header
    {
     font-size: 12pt;
@@ -170,7 +188,7 @@ transform-origin: 50% 50%;
    }
    .ring-items div{
     color: #807F83;
-    font-size: 10pt;
+    font-size: 12px;
     font-family: Arial;
    }
    .legend-container.quadrant-1{
@@ -197,7 +215,7 @@ transform-origin: 50% 50%;
    .ring-items
    {
     width:200px;
-    min-height: 20px;
+    min-height: 16px;
    }
    .legend-item-container.highlight
    {
@@ -447,11 +465,8 @@ function setLeftRightPaddingWidth() {
   var minPadding = 250;
 
   var windowWidth = $(window).width();
-
-
-
-  var quadrantRadius = 248;
-  var widthOfRadar = quadrantRadius * 2;
+  
+  var widthOfRadar = quadrantRadiusDef * 2;
   var extraPadding = (windowWidth - widthOfRadar - (minPadding * 2))/2;
 
 
@@ -540,6 +555,8 @@ window.setTimeout(function() {
 </div>
 <div class="radar-chart-sub-title">For more information click dots for VOX pages</div>
 <div class="title-menu-arrow"></div>
+
+
   <div class="radar-chart-category-menu">
 
 </div>
@@ -547,6 +564,6 @@ window.setTimeout(function() {
 
 </div>
 <div class="sapient-logo"></div>
-
+<div class="white title-menu-arrow"></div>
 </body>
 </html>

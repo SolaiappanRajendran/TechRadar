@@ -1,4 +1,4 @@
-var quadrantRadiusDef = 276;
+var quadrantRadiusDef = 300;
 function quadrant_setup() {    
     return {
        'languages-and-frameworks': {
@@ -284,7 +284,7 @@ function bindEvents() {
         $('div[id*=legend-]').on('mouseover',on_hover);
         
 
-        var quadrant2LegendHeight = $('.quadrant-2 .radar-legend').height();
+        /*var quadrant2LegendHeight = $('.quadrant-2 .radar-legend').height();
         
         var height2Difference = $('#quadrant-2-legend').height() - quadrant2LegendHeight;
 
@@ -302,7 +302,7 @@ function bindEvents() {
             $('.quadrant-1 .quadrant-top-padding').height(0);
         } else {
             $('.quadrant-1 .quadrant-top-padding').height(height1Difference - 10);
-        }
+        }*/
 
 };
 
