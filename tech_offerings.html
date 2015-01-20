@@ -43,12 +43,25 @@
    {
     cursor: pointer;
    }
+   .radar-chart-sub-title
+   {
+
+    width: 500px;
+    position: absolute;
+    top: 180px;
+    font-size: 10pt;
+    font-family: SapientSansLight, Arial;
+    margin-left: -250px;
+    text-align: center;
+
+   }
    .title-menu-arrow
    {
     position: absolute;
      height: 20px;
      width: 20px;
      top: 142px;
+     margin-left: -10px;
      background-color: #F04923;
      /* Chrome/Safari */
 -webkit-transform: rotate(45deg);
@@ -81,6 +94,9 @@ transform-origin: 50% 50%;
       background-color: #fbc0b2;
       cursor: pointer;
       border: 1px solid #fff;
+              text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;   
    }
    .category-menu-item:hover, .category-menu-item.highlight
    {
@@ -115,10 +131,14 @@ transform-origin: 50% 50%;
      {
       display: block;
      }
-    .bottom-padding{
+    .sapient-logo{
     background-image: url(sapient_logo.jpg);
     background-repeat: no-repeat;
     background-position: center center;
+    width: 232px;
+    height: 102px;
+    position: absolute;
+    margin-left: -116px;
    }
    .left-padding, .right-padding{
     width:250px;
@@ -305,20 +325,20 @@ $('#tech-radar').empty();
                   var url = recordObject["URL"];
                   var quadrantIndex = createdQuadrants.indexOf(index);
                   
-                  var directionOfTravelIncrementValue = [5, 25, 45];
+                  var directionOfTravelIncrementValue = [10, 30, 50];
                   var radial = directionOfTravelIncrementValue[directionOfTravelIncrementName.indexOf(directionOfTravel.toLowerCase())];
                   switch (ring) {
                       case 'Maintain':
-                          radial += 5;
+                          radial += 8;
                           break;
                       case 'Invest':
-                          radial += 67;
+                          radial += (8 + quadrantRadiusDef/4);
                           break;
                       case 'Watch':
-                          radial += 129;
+                          radial += (8 + quadrantRadiusDef/2);
                           break;
                       case 'Exit':
-                          radial += 191;
+                          radial += (8 + (3 * quadrantRadiusDef/4));
                           break;
                       default:
                           break;
@@ -377,7 +397,7 @@ function createRadar() {
                   var category = item['Technology Offerings'];
                     
                     if(techOfferings.indexOf(category) < 0 && category != '' && category != null) {
-                            $(menu).append('<div class="category-menu-item">' + category + '</div>');                            
+                            $(menu).append('<div class="category-menu-item" title="' + category + '">' + category + '</div>');                        
                           }
                         });
 
@@ -418,8 +438,8 @@ function createRadar() {
 
   var scrollBarWidth = $('body')[0].offsetHeight < $('body')[0].scrollHeight ? 21 : 0;
 
-  $('.radar-chart-title, .radar-chart-category-menu, .title-menu-arrow').css('left', (($(document).width())/2 + scrollBarWidth) + 'px');
-            
+  $('.radar-chart-title, .radar-chart-category-menu, .title-menu-arrow, .radar-chart-sub-title, .sapient-logo').css('left', ($('.left-padding').width() + quadrantRadiusDef + 10) + 'px');
+            $('.sapient-logo').css('top' , ($('.top-padding').height() + (quadrantRadiusDef * 2) + 50) + 'px');
 }
 
 
@@ -443,12 +463,13 @@ function setLeftRightPaddingWidth() {
                                      left: $('.left-padding').width() + $('#tech-radar').width() - 50
                                     });
   $('.quadrant-1,.quadrant-3').css({ 
-                                     left: $('#tech-radar').position().left - minPadding - 50
+                                     left: $('#tech-radar').position().left - minPadding
                                     });
 
   var scrollBarWidth = $('body')[0].offsetHeight < $('body')[0].scrollHeight ? 21 : 0;
 
-  $('.radar-chart-title, .radar-chart-category-menu, .title-menu-arrow').css('left', (($(document).width())/2 + scrollBarWidth) + 'px');
+  $('.radar-chart-title, .radar-chart-category-menu, .title-menu-arrow, .radar-chart-sub-title, .sapient-logo').css('left', ($('.left-padding').width() + quadrantRadiusDef + 10) + 'px');
+  $('.sapient-logo').css('top' , ($('.top-padding').height() + (quadrantRadiusDef * 2) + 50) + 'px');
 
 }
 
@@ -517,6 +538,7 @@ window.setTimeout(function() {
 <div class="right-padding"></div>
 <div class="bottom-padding"></div>
 </div>
+<div class="radar-chart-sub-title">For more information click dots for VOX pages</div>
 <div class="title-menu-arrow"></div>
   <div class="radar-chart-category-menu">
 
@@ -524,6 +546,7 @@ window.setTimeout(function() {
 <div class="radar-chart-title">
 
 </div>
+<div class="sapient-logo"></div>
 
 </body>
 </html>

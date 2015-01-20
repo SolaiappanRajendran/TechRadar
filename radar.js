@@ -1,3 +1,4 @@
+var quadrantRadiusDef = 276;
 function quadrant_setup() {    
     return {
        'languages-and-frameworks': {
@@ -185,15 +186,15 @@ var drawpoint = function(point, svg, colour, scale, quadrantRadius, tx, ty, poin
 };
 
 var CONFIG = {
-    'quadrantRadius': 248,
+    'quadrantRadius': quadrantRadiusDef,
     'pointWidth': 25,
     'pointFontSize': '10px',
     'textColour': '#000',
-    'maxRadius': 248,
+    'maxRadius': quadrantRadiusDef,
     'segmentData': [{
         'title': 'Maintain',
         'startRadius': 0,
-        'endRadius': 62,
+        'endRadius': quadrantRadiusDef/4,
         'languages-and-frameworks': {
             color: '#36839C'
         },
@@ -208,8 +209,8 @@ var CONFIG = {
         }
     }, {
         'title': 'Invest',
-        'startRadius': 63,
-        'endRadius': 124,
+        'startRadius': quadrantRadiusDef/4 + 1,
+        'endRadius': quadrantRadiusDef/2,
         'languages-and-frameworks': {
             color: '#69A2B5'
         },
@@ -224,8 +225,8 @@ var CONFIG = {
         }
     }, {
         'title': 'Watch',
-        'startRadius': 125,
-        'endRadius': 186,
+        'startRadius': quadrantRadiusDef/2 + 1,
+        'endRadius': 3 * quadrantRadiusDef / 4,
         'languages-and-frameworks': {
             color: '#9FC1CE'
         },
@@ -241,8 +242,8 @@ var CONFIG = {
         
     }, {
         'title': 'Exit',
-        'startRadius': 187,
-        'endRadius': 248,
+        'startRadius': 3 * quadrantRadiusDef / 4 + 1,
+        'endRadius': quadrantRadiusDef,
         'languages-and-frameworks': {
             color: '#C0D8E1'
         },
@@ -335,9 +336,6 @@ function drawRadar() {
         addLabel(svg, segment.title, segment.startRadius * scaleFactor, segment.endRadius * scaleFactor, CONFIG.quadrantRadius, 0.5, 0.5, 'white');        
     });
     
-
-   
-   // Borders
 
 var pointIndex = 0;
 var legendIndex = 0;
