@@ -36,7 +36,7 @@ function appendTriangle(svg, x, y, w) {
         return svg.append('path').attr('d', "M412.201,311.406c0.021,0,0.042,0,0.063,0c0.067,0,0.135,0,0.201,0c4.052,0,6.106-0.051,8.168-0.102c2.053-0.051,4.115-0.102,8.176-0.102h0.103c6.976-0.183,10.227-5.306,6.306-11.53c-3.988-6.121-4.97-5.407-8.598-11.224c-1.631-3.008-3.872-4.577-6.179-4.577c-2.276,0-4.613,1.528-6.48,4.699c-3.578,6.077-3.26,6.014-7.306,11.723C").attr("stroke", "white").attr("stroke-width", 2).attr('transform', 'scale(' + (w / 34) + ') translate(' + (-404 + x * (34 / w) - 17) + ', ' + (-282 + y * (34 / w) - 17) + ')');
 };
 function appendCircle(svg, x, y, w) {
-        return svg.append('circle').attr('cx', x).attr("cy", y).attr("stroke-width", 1).attr('r', 12).attr('stroke', '#F04923').attr('fill', 'white');
+        return svg.append('circle').attr('cx', x).attr("cy", y).attr("stroke-width", 1).attr('r', 9).attr('stroke', '#F04923').attr('fill', 'white');
 };
 function appendRect(svg, x, y, w, h) {
     return svg.append('rect').attr('x', x).attr('y', y).attr('width', w).attr('height', h);
@@ -47,7 +47,7 @@ function getRadian(deg) {
 
 function arc(svg, id, innerRadius, outerRadius, colour, radius, startAngle, tx, ty) {
     var arc = d3.svg.arc().innerRadius(innerRadius).outerRadius(outerRadius).startAngle(getRadian(startAngle)).endAngle(getRadian(startAngle + 90));
-    svg.append('path').attr('d', arc).attr('stroke-width', 2).attr('stroke', 'white').attr('fill', colour).attr('transform', 'translate(' + tx * radius * 2 + ', ' + ty * radius * 2 + ')');
+    svg.append('path').attr('d', arc).attr('stroke-width', 3).attr('stroke', 'white').attr('fill', colour).attr('transform', 'translate(' + tx * radius * 2 + ', ' + ty * radius * 2 + ')');
 };
 
 function quadrant(svg, id, quadrantRadius, scale, segments, startAngle, tx, ty, textColour) {
@@ -140,11 +140,11 @@ function addLabel(svg, text, startArc, endArc, quadrantRadius, tx, ty, colour) {
 
                 "text-anchor": "start",
                 "fill": colour,
-                'transform': 'translate(' + (x - 5) + ', ' + (y - 5) + ') rotate(-90)'
+                'transform': 'translate(' + (x - 2) + ', ' + (y - 2) + ') rotate(-90)'
             }).style({
                 'font-size': '14pt',
                 'font-family': 'SapientSansLight, Arial'
-            }).text(text.toUpperCase());
+            }).text(text);
         };
 
 
@@ -185,15 +185,15 @@ var drawpoint = function(point, svg, colour, scale, quadrantRadius, tx, ty, poin
 };
 
 var CONFIG = {
-    'quadrantRadius': 400,
+    'quadrantRadius': 248,
     'pointWidth': 25,
     'pointFontSize': '10px',
     'textColour': '#000',
-    'maxRadius': 400,
+    'maxRadius': 248,
     'segmentData': [{
         'title': 'Maintain',
         'startRadius': 0,
-        'endRadius': 100,
+        'endRadius': 62,
         'languages-and-frameworks': {
             color: '#36839C'
         },
@@ -208,8 +208,8 @@ var CONFIG = {
         }
     }, {
         'title': 'Invest',
-        'startRadius': 101,
-        'endRadius': 200,
+        'startRadius': 63,
+        'endRadius': 124,
         'languages-and-frameworks': {
             color: '#69A2B5'
         },
@@ -224,8 +224,8 @@ var CONFIG = {
         }
     }, {
         'title': 'Watch',
-        'startRadius': 201,
-        'endRadius': 300,
+        'startRadius': 125,
+        'endRadius': 186,
         'languages-and-frameworks': {
             color: '#9FC1CE'
         },
@@ -241,8 +241,8 @@ var CONFIG = {
         
     }, {
         'title': 'Exit',
-        'startRadius': 301,
-        'endRadius': 400,
+        'startRadius': 187,
+        'endRadius': 248,
         'languages-and-frameworks': {
             color: '#C0D8E1'
         },
@@ -282,12 +282,33 @@ function bindEvents() {
         $('div[id*=legend-]').on('mouseout', on_leave);
         $('div[id*=legend-]').on('mouseover',on_hover);
         
+
+        var quadrant2LegendHeight = $('.quadrant-2 .radar-legend').height();
+        
+        var height2Difference = $('#quadrant-2-legend').height() - quadrant2LegendHeight;
+
+        if(height2Difference < 0) {
+            $('.quadrant-2 .quadrant-top-padding').height(0);
+        } else {
+            $('.quadrant-2 .quadrant-top-padding').height(height2Difference - 10);
+        }
+
+        var quadrant1LegendHeight = $('.quadrant-1 .radar-legend').height();
+
+        var height1Difference = $('#quadrant-1-legend').height() - quadrant1LegendHeight;
+
+        if(height1Difference < 0) {
+            $('.quadrant-1 .quadrant-top-padding').height(0);
+        } else {
+            $('.quadrant-1 .quadrant-top-padding').height(height1Difference - 10);
+        }
+
 };
 
 
 
 function drawRadar() {
-    
+    $('.radar-legend').remove();
      var svg = d3.select('#tech-radar').insert('svg', ':first-child').attr('width', CONFIG.quadrantRadius * 2).attr('height', CONFIG.quadrantRadius * 2);
     var quadSetup = quadrant_setup();
      var scaleFactor = CONFIG.quadrantRadius / CONFIG.maxRadius;
@@ -315,11 +336,9 @@ function drawRadar() {
     });
     
 
-
    
    // Borders
-appendRect(svg, 400, 0, 3, 400 * 2).attr('fill', 'white');
-appendRect(svg, 0, 400, 400 * 2, 3).attr('fill', 'white');
+
 var pointIndex = 0;
 var legendIndex = 0;
 
@@ -347,9 +366,9 @@ var quadrantIndex = 1;
         });
     }
         var templating = _.template($('#legend-template').html());
-       $('#quadrant-' + (quadrantIndex) +'-legend').html(templating(legendObject));
+       $('#quadrant-' + (quadrantIndex) +'-legend').append(templating(legendObject));
 
-       $('.quadrant-' + (quadrantIndex) +' .legend-header').css('color', legendObject.parent.color).html(legendObject.parent.name.toUpperCase().replace(/-/g, ' ').replace('AND', '&'));
+       $('.quadrant-' + (quadrantIndex) +' .legend-header').css('color', legendObject.parent.color).html(legendObject.parent.name.replace(/-/g, ' ').replace('and', '&'));
        quadrantIndex++;
         if(filteredData.length > 0) {        
 
