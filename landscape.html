@@ -35,12 +35,16 @@
        </div>
    </script>
    <style type="text/css">
+   body
+   {
+    background-color: white;
+   }
    .legend-item-container
    {
     cursor: pointer;
    }
    .left-padding, .right-padding{
-    width:300px;
+    width:250px;
     display: inline-block;
    }
    .top-padding, .bottom-padding{
@@ -128,16 +132,29 @@
     max-height: 400px;
     overflow-y: auto;
     overflow-x: hidden;
+    /*position: absolute;*/
+    
    }
+   .quadrant-1 .radar-legend, .quadrant-2 .radar-legend
+   {
+    bottom: 0;
+   } 
+   .quadrant-3 .radar-legend, .quadrant-4 .radar-legend
+   {
+    top: 0;
+   } 
    .legend-header
    {
     font-size: 25pt;
     font-family: SapientSansLight, Arial;
     text-align: center;
+    text-transform: capitalize;
    }
    #quadrant-1-legend,#quadrant-2-legend,#quadrant-3-legend,#quadrant-4-legend
    {
-    height: 400px;
+    
+    height: 400px;    
+    position: relative;
    }
    a[id*=point-] text{
     font-family: SapientSansLight, Arial;
@@ -163,12 +180,12 @@
         oReq.open("GET", url, true);
         oReq.responseType = "arraybuffer";
         oReq.onload = function(e) {
-        	var arraybuffer = oReq.response;
-        	var data = new Uint8Array(arraybuffer);
-        	var arr = [];
-        	for(var i = 0; i != data.length; ++i) arr[i] = data[i];
-        	var wb = XLS.read(arr, {type:"array"});
-        	excelData = XLS.utils.make_json(wb.Sheets['Data']);
+          var arraybuffer = oReq.response;
+          var data = new Uint8Array(arraybuffer);
+          var arr = [];
+          for(var i = 0; i != data.length; ++i) arr[i] = data[i];
+          var wb = XLS.read(arr, {type:"array"});
+          excelData = XLS.utils.make_json(wb.Sheets['Data']);
 
           createRadar();
         }
@@ -178,7 +195,9 @@ function changeRadarData(optionTarget) {
 
 $('#tech-radar').empty();
 
-          var option = optionTarget.target.selectedOptions[0].text;
+     
+
+          var option = optionTarget.target.selectedOptions ? optionTarget.target.selectedOptions[0].text : optionTarget.target.options[0].text;
             var categoryCsvData = _.filter(excelData, function (element) {
                 return element['Bottom Up Category'] == option;
             });
@@ -209,20 +228,20 @@ $('#tech-radar').empty();
                   var url = recordObject["URL"];
                   var quadrantIndex = createdQuadrants.indexOf(index);
                   
-                  var directionOfTravelIncrementValue = [20, 50, 80];
+                  var directionOfTravelIncrementValue = [5, 25, 45];
                   var radial = directionOfTravelIncrementValue[directionOfTravelIncrementName.indexOf(directionOfTravel.toLowerCase())];
                   switch (ring) {
                       case 'Maintain':
-                          radial += 10;
+                          radial += 5;
                           break;
                       case 'Invest':
-                          radial += 100;
+                          radial += 67;
                           break;
                       case 'Watch':
-                          radial += 200;
+                          radial += 129;
                           break;
                       case 'Exit':
-                          radial += 305;
+                          radial += 191;
                           break;
                       default:
                           break;
@@ -289,9 +308,14 @@ function createRadar() {
                           }
                         });
                 $('#tech-category').val(techOfferings[0]);
-                window.setTimeout(function(){
-                $('#tech-category').trigger('change');
-              });
+                
+                  $('#tech-category').trigger('change');
+
+                  $('.quadrant-2,.quadrant-4').css({ right: 'auto',
+                                                     left: $('.left-padding').width() + $('#tech-radar').width() - 50
+                                                    });
+
+            
 }
 window.setTimeout(function() {
     $('#tech-category').change(changeRadarData);
@@ -312,7 +336,8 @@ window.setTimeout(function() {
 <div class="radar-container">
 <div class="legend-container quadrant-1">
 <div id="quadrant-1-legend">
-
+<div class="quadrant-top-padding">
+</div>
 
 </div>
 <div class="legend-header"></div>
@@ -320,7 +345,8 @@ window.setTimeout(function() {
 <div class="legend-container quadrant-2">
     
 <div id="quadrant-2-legend">
-
+<div class="quadrant-top-padding">
+</div>
 
 </div>
 <div class="legend-header"></div>
