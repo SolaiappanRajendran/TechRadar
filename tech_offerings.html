@@ -43,6 +43,78 @@
    {
     cursor: pointer;
    }
+   .title-menu-arrow
+   {
+    position: absolute;
+     height: 20px;
+     width: 20px;
+     top: 142px;
+     background-color: #F04923;
+     /* Chrome/Safari */
+-webkit-transform: rotate(45deg);
+-webkit-transform-origin: 50% 50%;
+
+/* Firefox */
+-moz-transform: rotate(45deg);
+-moz-transform-origin: 50% 50%;
+
+/* IE9 */
+-ms-transform: rotate(45deg);
+-ms-transform-origin: 50% 50%;
+
+/* This should work for IE10 and other modern browsers that do not need vendor prefixes */
+transform: rotate(45deg);
+transform-origin: 50% 50%;
+
+/* IE8 or less - using the "\9" CSS hack so that other browsers will ignore these lines */
+-ms-filter: "progid:DXImageTransform.Microsoft.Matrix(SizingMethod='auto expand', M11=0.7071067811865476, M12=-0.7071067811865475, M21=0.7071067811865475, M22=0.7071067811865476)"; /* IE8 */
+   }
+   .category-menu-item
+   {
+      height: 25px;
+      text-align: center;
+      padding-top: 4px;
+      font-size: 12pt;
+      color: #000;
+      text-transform: uppercase;
+      font-family: SapientSansLight, Arial;
+      background-color: #fbc0b2;
+      cursor: pointer;
+      border: 1px solid #fff;
+   }
+   .category-menu-item:hover, .category-menu-item.highlight
+   {
+      color: #fff;      
+      background-color: #F04923;
+   }
+   
+   .radar-chart-title
+   {
+    width: 247px;
+    height: 46px;
+    background-color: #F04923;
+    color: white;
+    font-size: 14pt;
+    text-transform: uppercase;
+    font-family: SapientSansLight, Arial;
+    padding-top: 6px;
+    text-align: center;
+    top: 100px;
+    margin-left: -123.5px;
+    position: absolute;
+   }
+   .radar-chart-category-menu
+   {
+    width: 247px;      
+    top: 152px;
+    margin-left: -123.5px;
+    position: absolute;
+    display: none;
+   }
+     .radar-chart-category-menu.show
+     {
+      display: block;
+     }
     .bottom-padding{
     background-image: url(sapient_logo.jpg);
     background-repeat: no-repeat;
@@ -105,7 +177,7 @@
    .ring-items
    {
     width:200px;
-    min-height: 30px;
+    min-height: 20px;
    }
    .legend-item-container.highlight
    {
@@ -196,13 +268,13 @@
         }
         oReq.send();
 
-function changeRadarData(optionTarget) {
+function changeRadarData() {
 
 $('#tech-radar').empty();
 
      
 
-          var option = optionTarget.target.selectedOptions ? optionTarget.target.selectedOptions[0].text : optionTarget.target.options[0].text;
+          var option = $('.radar-chart-title').text().trim()
             var categoryCsvData = _.filter(excelData, function (element) {
                 return element['Technology Offerings'] == option;
             });
@@ -300,21 +372,43 @@ $('#tech-radar').empty();
         }
 function createRadar() {
   var techOfferings = [];
-                $.each(excelData, function (index, item) {
+  var menu = $('.radar-chart-category-menu');
+                $.each(_.uniq(excelData, false, function(item) { return item['Technology Offerings']; }), function (index, item) {
                   var category = item['Technology Offerings'];
+                    
                     if(techOfferings.indexOf(category) < 0 && category != '' && category != null) {
-                            var categorySelect = document.getElementById('tech-category');
-                            var option = document.createElement('option');
-                            option.text = category;
-                            option.value = category;
-                            categorySelect.add(option);
-                            techOfferings.push(category);
-                            
+                            $(menu).append('<div class="category-menu-item">' + category + '</div>');                            
                           }
                         });
-                $('#tech-category').val(techOfferings[0]);
-                
-                  $('#tech-category').trigger('change');
+
+                      $('.radar-chart-title').on('click', function() {
+                          
+                          $('.radar-chart-category-menu').toggleClass('show');
+                      });
+
+                      $(document).click(function(e) { 
+
+                      if(!($(e.target).hasClass('radar-chart-title') 
+                        || $(e.target).hasClass('category-menu-item') 
+                          || $(e.target).parents('.radar-chart-title').length > 0 
+                          || $(e.target).parents('.category-menu-item').length > 0)) {
+                         
+
+                             $('.radar-chart-category-menu').removeClass('show');
+                    }
+
+                      });
+
+                        $('.category-menu-item').on('click', function() {
+                          
+                          $('.radar-chart-title').text($(this).text());
+                          $('.radar-chart-category-menu').removeClass('show');
+                          changeRadarData();
+                        });
+
+                $('.radar-chart-title').text($('.category-menu-item:first').text());
+                changeRadarData();
+                                  
     $('.quadrant-2,.quadrant-4').css({ right: 'auto',
                                      left: $('.left-padding').width() + $('#tech-radar').width() - 50
                                     });
@@ -322,7 +416,9 @@ function createRadar() {
                                      left: $('#tech-radar').position().left - 300
                                     });
 
+  var scrollBarWidth = $('body')[0].offsetHeight < $('body')[0].scrollHeight ? 21 : 0;
 
+  $('.radar-chart-title, .radar-chart-category-menu, .title-menu-arrow').css('left', (($(document).width())/2 + scrollBarWidth) + 'px');
             
 }
 
@@ -342,7 +438,7 @@ function setLeftRightPaddingWidth() {
 
   $('.left-padding').width(minPadding + (extraPadding < 0 ? 0: extraPadding));
   $('.right-padding').width(minPadding + (extraPadding < 0 ? 0: extraPadding));
-  debugger;
+  
       $('.quadrant-2,.quadrant-4').css({ right: 'auto',
                                      left: $('.left-padding').width() + $('#tech-radar').width() - 50
                                     });
@@ -350,17 +446,23 @@ function setLeftRightPaddingWidth() {
                                      left: $('#tech-radar').position().left - minPadding - 50
                                     });
 
+  var scrollBarWidth = $('body')[0].offsetHeight < $('body')[0].scrollHeight ? 21 : 0;
+
+  $('.radar-chart-title, .radar-chart-category-menu, .title-menu-arrow').css('left', (($(document).width())/2 + scrollBarWidth) + 'px');
+
 }
 
+
+
 $(window).resize(function() {
-  $('#tech-category').trigger('change');
+  changeRadarData();
   window.setTimeout(function() {
     setLeftRightPaddingWidth();
   });
 });
 
 window.setTimeout(function() {
-    $('#tech-category').change(changeRadarData);
+    
     setLeftRightPaddingWidth();
         
 });
@@ -374,8 +476,6 @@ window.setTimeout(function() {
 
 <body>
 
-<select id="tech-category">
-</select>
 <div class="radar-container">
 <div class="legend-container quadrant-1">
 <div id="quadrant-1-legend">
@@ -410,11 +510,20 @@ window.setTimeout(function() {
 </div>
 
 </div>
+
 <div class="top-padding"></div>
 <div class="left-padding"></div>
 <div id="tech-radar"></div>
 <div class="right-padding"></div>
 <div class="bottom-padding"></div>
 </div>
+<div class="title-menu-arrow"></div>
+  <div class="radar-chart-category-menu">
+
+</div>
+<div class="radar-chart-title">
+
+</div>
+
 </body>
 </html>
