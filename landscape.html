@@ -314,7 +314,7 @@ $('#tech-radar').empty();
 
           var option = $('.radar-chart-title').text().trim()
             var categoryCsvData = _.filter(excelData, function (element) {
-                return element['Bottom Up Category'] == option;
+                return element['Bottom Up Category'] == option && element['A/B'] != null && element['DOT'] != null;
             });
 
             setRadarData(categoryCsvData);
@@ -410,9 +410,13 @@ $('#tech-radar').empty();
         }
 function createRadar() {
   var techOfferings = [];
+  var sortIndex = {'presentationlayer': 0, 'other': 0, 'nextgenerationplatform': 1, 'businessintelligence': 2, 'design': 3, 'businessservices': 1, 'datalayer': 2, 'platformsandcloudservices': 3, 'integration': 4, 'infrastructure': 5, 'delivery': 6};
   var menu = $('.radar-chart-category-menu');
-                $.each(_.uniq(excelData, false, function(item) { return item['Bottom Up Category']; }), function (index, item) {
-                  var category = item['Bottom Up Category'];
+  
+  var uniqueData = _.sortBy(_.uniq(_.pluck(excelData, 'Bottom Up Category')), function(item) { if(item == null) item = ''; return sortIndex[item.toLowerCase().replace(/ /g, '')];  });
+                                
+                $.each(uniqueData, function (index, category) {
+                  
                     
                     if(techOfferings.indexOf(category) < 0 && category != '' && category != null) {
                             $(menu).append('<div class="category-menu-item" title="' + category + '">' + category + '</div>');                        

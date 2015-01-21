@@ -1,4 +1,4 @@
-var quadrantRadiusDef = 300;
+var quadrantRadiusDef = 324;
 function quadrant_setup() {    
     return {
        'languages-and-frameworks': {
