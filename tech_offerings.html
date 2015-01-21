@@ -344,7 +344,7 @@ $('#tech-radar').empty();
                   var url = recordObject["URL"];
                   var quadrantIndex = createdQuadrants.indexOf(index);
                   
-                  var directionOfTravelIncrementValue = [10, 30, 50];
+                  var directionOfTravelIncrementValue = [8, (quadrantRadiusDef/(4*2)) - 8, (3 * quadrantRadiusDef/(4*4))];
                   var radial = directionOfTravelIncrementValue[directionOfTravelIncrementName.indexOf(directionOfTravel.toLowerCase())];
                   switch (ring) {
                       case 'Maintain':
