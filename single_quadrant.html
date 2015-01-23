@@ -318,7 +318,7 @@ $('#tech-radar').empty();
           var option = $('.radar-chart-title').text().trim();
           quadrantName = $('.category-item.selected').attr('name').trim();
             var categoryCsvData = _.filter(excelData, function (element) {
-                return element['Classification Quadrant'] != null && element['Classification Quadrant'].toLowerCase().replace(/ /g, '-').replace('&', 'and') == quadrantName && element['Technology Offerings'] == option && element['A/B'] != null && element['DOT'] != null;
+                return element['Classification Quadrant'] != null && element['Classification Quadrant'].toLowerCase().replace(/ /g, '-').replace('&', 'and') == quadrantName && element['Bottom Up Category'] == option && element['A/B'] != null && element['DOT'] != null;
             });
 
             setRadarData(categoryCsvData);
@@ -411,7 +411,7 @@ function createRadar() {
    var sortIndex = {'presentationlayer': 0, 'other': 0, 'nextgenerationplatform': 1, 'businessintelligence': 2, 'design': 3, 'businessservices': 1, 'datalayer': 2, 'platformsandcloudservices': 3, 'integration': 4, 'infrastructure': 5, 'delivery': 6};
   var menu = $('.radar-chart-category-menu');
   
-  var uniqueData = _.sortBy(_.uniq(_.pluck(excelData, 'Technology Offerings')), function(item) { if(item == null) item = '';  return sortIndex[item.toLowerCase().replace(/ /g, '')];  });
+  var uniqueData = _.sortBy(_.uniq(_.pluck(excelData, 'Bottom Up Category')), function(item) { if(item == null) item = '';  return sortIndex[item.toLowerCase().replace(/ /g, '')];  });
                                 
                 $.each(uniqueData, function (index, category) {
                   

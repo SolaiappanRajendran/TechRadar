@@ -1,32 +1,49 @@
 var quadrantRadiusDef = 400;
 var totalWidth = 600;
-var totalHeight = 650;
-var quadrantName = 'platforms'
+var totalHeight = 640;
+var quadrantName = 'techniques';
+var spacing = 30;
 function quadrant_setup() {    
     return {
        'languages-and-frameworks': {
             'startAngle': 270,
             'tx': 1,
             'ty': 1,
-            'colour': '#587486'
+            'colour': '#587486',
+            'left': '45px',
+            'right': 'auto',
+            'top': '45px',
+            'bottom': 'auto'
         },
         'techniques': {
             'startAngle': 0,
             'tx': 0,
             'ty': 1,
-            'colour': '#B70062'
+            'colour': '#B70062',
+            'left': 'auto',
+            'right': '45px',
+            'top': '45px',
+            'bottom': 'auto'
         },
         'tools': {
             'startAngle': 180,
             'tx': 1,
             'ty': 0,
-            'colour': '#8FA227'
+            'colour': '#8FA227',
+            'left': '45px',
+            'right': 'auto',
+            'top': 'auto',
+            'bottom': '45px'
         },                       
         'platforms': {
             'startAngle': 90,
             'tx': 0,
             'ty': 0,
-            'colour': '#DC6F1D'
+            'colour': '#DC6F1D',
+            'left': 'auto',
+            'right': '45px',
+            'top': 'auto',
+            'bottom': '45px'
         }
                
         
@@ -49,15 +66,16 @@ function getRadian(deg) {
     return deg * Math.PI / 180;
 };
 
-function arc(svg, id, innerRadius, outerRadius, colour, radius, startAngle, tx, ty) {
+function arc(svg, id, innerRadius, outerRadius, colour, radius, startAngle, tx, ty, isFinalQuadrant) {
     var arc = d3.svg.arc().innerRadius(innerRadius).outerRadius(outerRadius).startAngle(getRadian(startAngle)).endAngle(getRadian(startAngle + 90));
-    svg.append('path').attr('d', arc).attr('stroke-width', 3).attr('stroke', 'white').attr('fill', colour).attr('transform', 'translate(' + tx *  totalWidth + ', ' + ty * totalHeight + ')');
+    
+    svg.append('path').attr('d', arc).attr('stroke-width', 3).attr('stroke', 'white').attr('fill', colour).attr('transform', 'translate(' + (tx *  totalWidth  + spacing) +  ', ' + (ty * totalHeight  + spacing) + ')');
 };
 
 function quadrant(svg, id, quadrantRadius, scale, segments, startAngle, tx, ty, textColour) {
-    _(segments).each(function(segment) {
+    _(segments).each(function(segment, segmentIndex) {
         
-        arc(svg, id, segment.startRadius * scale, segment.endRadius * scale, segment[quadrantName].color, quadrantRadius, startAngle, tx, ty);        
+        arc(svg, id, segment.startRadius * scale, segment.endRadius * scale, segment[quadrantName].color, quadrantRadius, startAngle, tx, ty, segmentIndex == segments.length - 1);        
     });
     
   
@@ -127,24 +145,37 @@ var pointCoord = function(point, scaleFactor, quadrantRadius, tx, ty, startAngle
         xI = -1;
         yI = -1;
     }
+
    
     return {
-        'x': Math.abs(Math.abs(point.radial * scaleFactor * Math.cos(getRadian(startAngle + point.theta))) + (xI) * tx * quadrantRadius),
-        'y': Math.abs(Math.abs(point.radial * scaleFactor * Math.sin(getRadian(startAngle + point.theta))) + (yI) * ty * quadrantRadius)
+        'x': Math.abs(Math.abs(point.radial * scaleFactor * Math.cos(getRadian(startAngle + point.theta))) + (xI) * tx * totalWidth + (xI * spacing)),
+        'y': Math.abs(Math.abs(point.radial * scaleFactor * Math.sin(getRadian(startAngle + point.theta))) + (yI) * ty * totalHeight + (yI * spacing))
     };
 };
 
 function addLabel(svg, text, startArc, endArc, quadrantRadius, tx, ty, colour) {
+                    
+           var x = (totalWidth * tx) + spacing;
+           var y = (totalHeight * ty) + spacing;
 
-            var totalWidth = quadrantRadius, totalHeight = quadrantRadius;            
-           var x = totalWidth * tx;
-           var y = (totalHeight * ty) - (startArc);
+           var textXPadding = 5, textYPadding = 15;
+           var xI = 1;
+            if(tx == 1) {
+                textXPadding = -5;
+                
+                xI = -1;
+            }
+
+            if(ty == 0) {
+                textYPadding = -5;
+            }
+
 
             svg.append('text').attr({
 
-                "text-anchor": "start",
+                "text-anchor": 'middle',
                 "fill": colour,
-                'transform': 'translate(' + (x - 2) + ', ' + (y - 2) + ') rotate(-90)'
+                'transform': 'translate(' + (x + (xI * startArc) + ((quadrantRadiusDef / (4 * 2) * xI) + textXPadding)) + ', ' + (y + textYPadding) + ')'
             }).style({
                 'font-size': '14pt',
                 'font-family': 'SapientSansLight, Arial'
@@ -287,33 +318,16 @@ function bindEvents() {
         $('div[id*=legend-]').on('mouseover',on_hover);
         
 
-        /*var quadrant2LegendHeight = $('.quadrant-2 .radar-legend').height();
-        
-        var height2Difference = $('#quadrant-2-legend').height() - quadrant2LegendHeight;
-
-        if(height2Difference < 0) {
-            $('.quadrant-2 .quadrant-top-padding').height(0);
-        } else {
-            $('.quadrant-2 .quadrant-top-padding').height(height2Difference - 10);
-        }
-
-        var quadrant1LegendHeight = $('.quadrant-1 .radar-legend').height();
-
-        var height1Difference = $('#quadrant-1-legend').height() - quadrant1LegendHeight;
-
-        if(height1Difference < 0) {
-            $('.quadrant-1 .quadrant-top-padding').height(0);
-        } else {
-            $('.quadrant-1 .quadrant-top-padding').height(height1Difference - 10);
-        }*/
-
 };
 
 
 
 function drawRadar() {
     $('.radar-legend').remove();
-     var svg = d3.select('#tech-radar').insert('svg', ':first-child').attr('width', totalWidth).attr('height', totalHeight);
+     var svg = d3.select('#tech-radar').insert('svg', ':first-child').attr('width', totalWidth + spacing * 2).attr('height', totalHeight + spacing * 2);
+    
+    appendRect(svg, spacing, spacing, totalWidth, totalHeight)
+
     var quadSetup = quadrant_setup();
      var scaleFactor = CONFIG.quadrantRadius / CONFIG.maxRadius;
     
@@ -324,9 +338,9 @@ function drawRadar() {
     
 
 
-    _(CONFIG.segmentData).each(function(segment) {
+    _(CONFIG.segmentData).each(function(segment, segmentIndex) {
         
-        addLabel(svg, segment.title, segment.startRadius * scaleFactor, segment.endRadius * scaleFactor, CONFIG.quadrantRadius, quadrantData.tx, quadrantData.ty, 'white');        
+        addLabel(svg, segment.title, segment.startRadius * scaleFactor, segment.endRadius * scaleFactor, CONFIG.quadrantRadius, quadrantData.tx, quadrantData.ty, CONFIG.segmentData[0][quadrantName].color);        
     });
     
 
@@ -336,7 +350,7 @@ var legendIndex = 0;
 var quadrantIndex = 1;
      
      var filteredData = _.filter(radar_data, function(d) {return d.quadrant.toLowerCase().replace(/ /g, '-') == quadrantName; })
- 
+        
         var legendObject= {};
 
         legendObject.parent = { color: CONFIG.segmentData[0][quadrantName].color, name: quadrantName, pointIndex: pointIndex };
@@ -356,8 +370,10 @@ var quadrantIndex = 1;
     }
         var templating = _.template($('#legend-template').html());
        $('#quadrant-' + (quadrantIndex) +'-legend').append(templating(legendObject));
-
-       $('.quadrant-' + (quadrantIndex) +' .legend-header').css('color', legendObject.parent.color).html(legendObject.parent.name.replace(/-/g, ' ').replace('and', '&'));
+       $('#tech-radar rect:first').attr('fill', legendObject.parent.color);
+       $('.quadrant-1 .legend-header').css('color', 'white').html(legendObject.parent.name.replace(/-/g, ' ').replace('and', '&'));
+    
+       $('.quadrant-1').css(quadrantData);
        quadrantIndex++;
         if(filteredData.length > 0) {        
 
@@ -384,6 +400,7 @@ var quadrantIndex = 1;
             var quadrantData = CONFIG.quadrantData[quadrantName];
     
                 _(points).each(function(point) {
+                    
                     drawpoint(point, svg, quadrantData.colour, scaleFactor, CONFIG.quadrantRadius, quadrantData.tx, quadrantData.ty, CONFIG.pointWidth, CONFIG.pointFontSize, quadrantData.startAngle);
                 });
            
