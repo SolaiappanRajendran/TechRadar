@@ -3,6 +3,7 @@ var totalWidth = 600;
 var totalHeight = 640;
 var quadrantName = 'techniques';
 var spacing = 30;
+var radarName = '';
 function quadrant_setup() {    
     return {
        'languages-and-frameworks': {
@@ -124,11 +125,28 @@ var restorepoints = function() {
 };
 var unhighlight = function(pointId, needFocus) {
     colourLink(pointId, undefined, undefined, false);
-
+    $('.tooltip-container svg').hide();
     restorepoints();
 };
 var highlight = function(pointId, pointColour, textColour, needFocus) {
     colourLink(pointId, pointColour, textColour, needFocus);
+
+    var currentPoint = _.filter(radar_data[0].items, function(item) {
+        return item.index == pointId;
+    });
+    
+    if(currentPoint.length > 0) {
+        $('.tooltip-title-text').html(createSVGtext(radarName, 30, 0, 50).html());
+        $('.tooltip-sub-title-text').html(createSVGtext(quadrantName.replace(/-/g, ' ') + ' / ' + currentPoint[0].ring, 30, 0, 50).html());
+        $('.tooltip-element-title-text').html(createSVGtext(currentPoint[0].name, 30, 0, 50).html());
+        
+        
+        $('.tooltip-element-description-text').html(createSVGtext(currentPoint[0].description, 30, 0, 50, 20, 150).html());
+        
+        $('.tooltip-index-text').text(pointId);
+        $('.tooltip-more-element-text').data('href', currentPoint[0].href);
+       $('.tooltip-container svg').show();
+    }
     blurOtherPoints(pointId);
 };
 var pointCoord = function(point, scaleFactor, quadrantRadius, tx, ty, startAngle) {

@@ -6,6 +6,7 @@
     <script type="text/javascript" charset="utf-8" src="lib/underscore.js"></script>    
     <script type="text/javascript" charset="utf-8" src="radars/radarData.js"></script>
     <script type="text/javascript" src="sing_quadrant_radar.js" charset="utf-8"></script>
+    <script type="text/javascript" src="utils.js" charset="utf-8"></script>
 <script src="lib/xls.js"></script>
 <script src="lib/shim.js"></script>
     <script type="text/template" id="legend-template">
@@ -41,6 +42,14 @@
    {
     background-color: white;
    }
+   .tooltip-element-description-text
+   {
+    height: 150px;
+    overflow: hidden;
+   }
+   text.tooltip-sub-title-text {
+    text-transform: capitalize;
+    }
    .category-item
    {
     display: inline-block;
@@ -315,15 +324,15 @@ $('#tech-radar').empty();
 
      
 
-          var option = $('.radar-chart-title').text().trim();
+          radarName = $('.radar-chart-title').text().trim();
           quadrantName = $('.category-item.selected').attr('name').trim();
             var categoryCsvData = _.filter(excelData, function (element) {
-                return element['Classification Quadrant'] != null && element['Classification Quadrant'].toLowerCase().replace(/ /g, '-').replace('&', 'and') == quadrantName && element['Bottom Up Category'] == option && element['A/B'] != null && element['DOT'] != null;
+                return element['Classification Quadrant'] != null && element['Classification Quadrant'].toLowerCase().replace(/ /g, '-').replace('&', 'and') == quadrantName && element['Bottom Up Category'] == radarName && element['A/B'] != null && element['DOT'] != null;
             });
 
             setRadarData(categoryCsvData);
 
-            $('#tech-title').text(option);
+            $('#tech-title').text(radarName);
         }
         function setRadarData(categoryArray) {
             radar_data = [];
@@ -334,10 +343,10 @@ $('#tech-radar').empty();
                 var obj = {};
                 obj['quadrant'] = quadrantName;
                 obj['items'] = [];
-
+                var pointIndex = 1;
             $.each(lines, function (index, recordObject) { 
               
-                  var currentObject = {};
+                  var currentObject = { index: pointIndex++ };
                   var ring = recordObject["A/B"];
                   var directionOfTravel = recordObject["DOT"];
                   var url = recordObject["URL"];                  
@@ -360,11 +369,13 @@ $('#tech-radar').empty();
                       default:
                           break;
                   }
+
                   currentObject['name'] = recordObject["Blip Name"];
                   currentObject['ring'] = ring;
                   currentObject['pc'] = {'r': radial, 't': 135};
                   currentObject['dot'] = directionOfTravel.toLowerCase();
                   currentObject['movement'] = 'c';
+                  currentObject['description'] = recordObject['Description'];
                   // Add the blipSize
                   currentObject['blipSize'] = recordObject["Blip Size"];
                   if (typeof url !== 'undefined' && url !== '') {
@@ -455,11 +466,95 @@ function createRadar() {
                 $('.radar-chart-title').text($('.category-menu-item:first').text());
                 changeRadarData();
    
-
+                drawTooltip();
   
             $('.sapient-logo').css('top' , ($('.top-padding').height() + (quadrantRadiusDef * 2) + 50) + 'px');
 }
 
+function drawTooltip() {
+  var svg = d3.select('.tooltip-container').style('margin-top', spacing + 'px').insert('svg', ':first-child').style('display', 'none').attr('width', 380).attr('height', 320);
+
+  var box = svg.append('rect').attr('x', 20).attr('y', 0).attr('width', 360).attr('height', 310).attr('fill', 'white').attr('stroke', '#F04923');
+  svg.append('rect').attr('x', 20).attr('y', 0).attr('width', 360).attr('height', 30).attr('fill', '#F04923');
+
+  svg.append('circle').attr({
+    'cx': 20,
+    'cy': 70,
+    'r': 14,
+    'fill': '#F04923'
+  })
+
+svg.append('text').attr({
+                "class": 'tooltip-index-text',
+                "text-anchor": 'middle',
+                "fill": 'white',
+                'transform': 'translate(' + (20) + ', ' + (77) + ')'
+            }).style({
+                'font-size': '15pt',
+                'font-family': 'SapientSansLight, Arial'
+            });
+
+  svg.append('text').attr({
+                "class": 'tooltip-title-text',
+                "text-anchor": 'start',
+                "fill": 'white',
+                'transform': 'translate(' + (15) + ', ' + (20) + ')'
+            }).style({
+                'font-size': '15pt',
+                'font-family': 'SapientSansLight, Arial'
+            });
+  svg.append('text').attr({
+                "class": 'tooltip-sub-title-text',
+                "text-anchor": 'start',
+                "fill": '#F04923',
+                'transform': 'translate(' + (15) + ', ' + (50) + ')'
+            }).style({
+                'font-size': '9.5pt',
+                'font-family': 'SapientSansLight, Arial'
+            });
+
+  svg.append('text').attr({
+                "class": 'tooltip-element-title-text',
+                "text-anchor": 'start',
+                "fill": 'rgb(128, 127, 131)',
+                'transform': 'translate(' + (15) + ', ' + (80) + ')'
+            }).style({
+                'font-size': '20pt',
+                'font-family': 'SapientSansLight, Arial'
+            });
+
+
+   svg.append('text').attr({
+                "class": 'tooltip-element-description-text',
+                "text-anchor": 'start',
+                "fill": 'rgb(128, 127, 131)',
+                'transform': 'translate(' + (15) + ', ' + (100) + ')'
+            }).style({
+                'font-size': '9.5pt',
+                
+                'font-family': 'SapientSansLight, Arial'
+            });
+
+    svg.append('text').attr({
+                "class": 'tooltip-more-element-text',
+                "text-anchor": 'middle',
+                "fill": 'rgb(128, 127, 131)',
+                'transform': 'translate(' + (195) + ', ' + (270) + ')'
+            }).style({
+                'font-size': '9.5pt',                
+                'font-family': 'SapientSansLight, Arial'
+            }).text('MORE');
+    $('.tooltip-more-element-text').click(function(){
+        window.open($(this).data('href'));
+    });
+    svg.append('path').attr({
+        d: "M 30 280 L 180 280 L 195 295 L 210 280 L 370 280",       
+       stroke: "#F04923",
+       'fill': 'white',
+       'stroke-width': 2
+    })
+
+}
 
 function setLeftRightPaddingWidth() {
   var minPadding = 250;
@@ -521,6 +616,7 @@ window.setTimeout(function() {
 
 </div>
 <div class="legend-category-container">
+  <div class="tooltip-container"></div>
 <div class="title-menu-arrow"></div>
 <div class="categories-classification">
 <div name="languages-and-frameworks" class="category-item selected"></div>
