@@ -3,7 +3,7 @@ var totalWidth = 600;
 var totalHeight = 640;
 var quadrantName = 'techniques';
 var spacing = 30;
-var radarName = '';
+var radarName = '', animateIndex, originCoord;
 function quadrant_setup() {    
     return {
        'languages-and-frameworks': {
@@ -58,7 +58,7 @@ function appendTriangle(svg, x, y, w) {
         return svg.append('path').attr('d', "M412.201,311.406c0.021,0,0.042,0,0.063,0c0.067,0,0.135,0,0.201,0c4.052,0,6.106-0.051,8.168-0.102c2.053-0.051,4.115-0.102,8.176-0.102h0.103c6.976-0.183,10.227-5.306,6.306-11.53c-3.988-6.121-4.97-5.407-8.598-11.224c-1.631-3.008-3.872-4.577-6.179-4.577c-2.276,0-4.613,1.528-6.48,4.699c-3.578,6.077-3.26,6.014-7.306,11.723C").attr("stroke", "white").attr("stroke-width", 2).attr('transform', 'scale(' + (w / 34) + ') translate(' + (-404 + x * (34 / w) - 17) + ', ' + (-282 + y * (34 / w) - 17) + ')');
 };
 function appendCircle(svg, x, y, w) {
-        return svg.append('circle').attr('cx', x).attr("cy", y).attr("stroke-width", 1).attr('r', 9).attr('stroke', '#F04923').attr('fill', 'white');
+        return svg.append('circle').attr("stroke-width", 1).attr('cx', originCoord.x).attr('cy', originCoord.y).style('opacity', 0).transition().delay(1000).duration(1000).style('opacity', 1).attr('cx', x).attr("cy", y).attr('r', 9).attr('stroke', '#F04923').attr('fill', 'white');
 };
 function appendRect(svg, x, y, w, h) {
     return svg.append('rect').attr('x', x).attr('y', y).attr('width', w).attr('height', h);
@@ -68,15 +68,17 @@ function getRadian(deg) {
 };
 
 function arc(svg, id, innerRadius, outerRadius, colour, radius, startAngle, tx, ty, isFinalQuadrant) {
-    var arc = d3.svg.arc().innerRadius(innerRadius).outerRadius(outerRadius).startAngle(getRadian(startAngle)).endAngle(getRadian(startAngle + 90));
-    
-    svg.append('path').attr('d', arc).attr('stroke-width', 3).attr('stroke', 'white').attr('fill', colour).attr('transform', 'translate(' + (tx *  totalWidth  + spacing) +  ', ' + (ty * totalHeight  + spacing) + ')');
+   var arc = d3.svg.arc().innerRadius(innerRadius).outerRadius(innerRadius).startAngle(getRadian(startAngle)).endAngle(getRadian(startAngle + 90));
+    var destArc = d3.svg.arc().startAngle(getRadian(startAngle)).endAngle(getRadian(startAngle + 90)).innerRadius(innerRadius).outerRadius(outerRadius); 
+    svg.append('path').attr('d', arc).attr('stroke-width', 0).attr('fill', colour).attr('transform', 'translate(' + (tx *  totalWidth  + spacing) +  ', ' + (ty * totalHeight  + spacing) + ')').transition().delay(animateIndex * 100).attr('d', destArc).attr('stroke-width', 3).attr('stroke', 'white').attr('fill', colour);
+    animateIndex++;
 };
 
 function quadrant(svg, id, quadrantRadius, scale, segments, startAngle, tx, ty, textColour) {
+    animateIndex = 1;
     _(segments).each(function(segment, segmentIndex) {
         
-        arc(svg, id, segment.startRadius * scale, segment.endRadius * scale, segment[quadrantName].color, quadrantRadius, startAngle, tx, ty, segmentIndex == segments.length - 1);        
+        arc(svg, id, segment.startRadius * scale, segment.endRadius * scale, segment[quadrantName].color, quadrantRadius, startAngle, tx, ty, segmentIndex == segments.length - 1);
     });
     
   
@@ -114,19 +116,19 @@ if(needFocus) {
     $(radarLegend).scrollTop(ringLegend.top);
 }
 };
-var blurOtherPoints = function(pointId) {
+var blurOtherPoints = function(pointId, animationRequired) {
     d3.selectAll('a circle, a path');
-    d3.select('#point-' + pointId).selectAll('circle, path').attr('fill', '#F04923').attr('stroke', 'white').attr('stroke-width', 2);
-    d3.select('#point-' + pointId).selectAll('text').attr('fill', 'white');
+    d3.select('#point-' + pointId).selectAll('circle, path').transition().duration(animationRequired? 100: 0).attr('r', 15).attr('fill', '#F04923').attr('stroke', 'white').attr('stroke-width', 2);
+    d3.select('#point-' + pointId).selectAll('text').transition().duration(animationRequired? 100: 0).attr('fill', 'white');
 };
-var restorepoints = function() {
-    d3.selectAll('a path, a circle').attr('fill', 'white').attr('stroke','#F04923').attr('stroke-width', 1);
-     d3.selectAll('a').selectAll('text').attr('fill', 'black');
+var restorepoints = function(animationRequired) {
+    d3.selectAll('a path, a circle').transition().duration(animationRequired? 100: 0).attr('r', 9).attr('fill', 'white').attr('stroke','#F04923').attr('stroke-width', 1);
+     d3.selectAll('a').selectAll('text').transition().duration(animationRequired? 100: 0).attr('fill', 'black');
 };
 var unhighlight = function(pointId, needFocus) {
     colourLink(pointId, undefined, undefined, false);
     $('.tooltip-container svg').hide();
-    restorepoints();
+    restorepoints(needFocus);
 };
 var highlight = function(pointId, pointColour, textColour, needFocus) {
     colourLink(pointId, pointColour, textColour, needFocus);
@@ -141,13 +143,13 @@ var highlight = function(pointId, pointColour, textColour, needFocus) {
         $('.tooltip-element-title-text').html(createSVGtext(currentPoint[0].name, 30, 0, 50).html());
         
         
-        $('.tooltip-element-description-text').html(createSVGtext(currentPoint[0].description, 30, 0, 50, 20, 150).html());
+        $('.tooltip-element-description-text').html(createSVGtext(currentPoint[0].description, 30, 0, 60, 20, 150).html());
         
         $('.tooltip-index-text').text(pointId);
         $('.tooltip-more-element-text').data('href', currentPoint[0].href);
-       $('.tooltip-container svg').show();
+       $('.tooltip-container svg').show(500);
     }
-    blurOtherPoints(pointId);
+    blurOtherPoints(pointId, needFocus);
 };
 var pointCoord = function(point, scaleFactor, quadrantRadius, tx, ty, startAngle) {
     var xI = 1;
@@ -222,7 +224,7 @@ var drawpoint = function(point, svg, colour, scale, quadrantRadius, tx, ty, poin
         'fill': '#000'
     }).text(point.radarId).style({
         'text-anchor': 'middle'
-    });
+    }).style('opacity', 0).transition().delay(2000).duration(100).style('opacity', 1);
     link.on('touchstart', function() {
         highlight(point.id, highlightPointColor, highlightTextColor, true);
     });
@@ -387,7 +389,7 @@ var quadrantIndex = 1;
         });
     }
         var templating = _.template($('#legend-template').html());
-       $('#quadrant-' + (quadrantIndex) +'-legend').append(templating(legendObject));
+       $('#quadrant-' + (quadrantIndex) +'-legend').append(templating(legendObject)).hide().show(600);
        $('#tech-radar rect:first').attr('fill', legendObject.parent.color);
        $('.quadrant-1 .legend-header').css('color', 'white').html(legendObject.parent.name.replace(/-/g, ' ').replace('and', '&'));
     
@@ -416,7 +418,8 @@ var quadrantIndex = 1;
 
         if (points !== undefined) {           
             var quadrantData = CONFIG.quadrantData[quadrantName];
-    
+                originCoord = pointCoord({radial: 0, theta: 0}, scaleFactor, CONFIG.quadrantRadius, quadrantData.tx, quadrantData.ty, quadrantData.startAngle);
+                animateIndex = 1;
                 _(points).each(function(point) {
                     
                     drawpoint(point, svg, quadrantData.colour, scaleFactor, CONFIG.quadrantRadius, quadrantData.tx, quadrantData.ty, CONFIG.pointWidth, CONFIG.pointFontSize, quadrantData.startAngle);

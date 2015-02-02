@@ -109,9 +109,34 @@ transform-origin: 50% 50%;
       position: absolute;
       margin-left: -110.5px;
       height: 216px;
-      background-image: url(categories.png);
+      background-repeat: no-repeat;
+      background-image: url(categories.jpg);
       left: 50%;
       top: calc(55% + 70px);
+        transition: display .5s ease;
+  -webkit-transition: display .5s ease;
+  -moz-transition: display .5s ease;
+  -o-transition: display .5s ease;
+   }
+   .categories-classification.techniques
+   {
+    background-image: url(techniques.jpg);
+           transition: display .5s ease;
+  -webkit-transition: display .5s ease;
+  -moz-transition: display .5s ease;
+  -o-transition: display .5s ease;
+   }
+   .categories-classification.platforms
+   {
+    background-image: url(platforms.jpg);
+   }
+   .categories-classification.tools
+   {
+    background-image: url(tools.jpg);
+   }
+   .categories-classification.languages-and-frameworks
+   {
+    background-image: url(languages-and-frameworks.jpg);
    }
    .category-menu-item
    {
@@ -450,9 +475,16 @@ function createRadar() {
 
                       });
 
-                      $('.category-item').click(function() {
+                      $('.categories-classification').mouseover(function(e) {
+                          
+                          $(this).attr('class', 'categories-classification').addClass($(e.target).attr('name'));
+                      }).mouseout(function(e) {
+                        
+
+                              $(this).attr('class', 'categories-classification');
+                      }).click(function(e) {
                           $('.category-item').removeClass('selected');
-                          $(this).addClass('selected');
+                          $(e.target).addClass('selected');
                           changeRadarData();
                       });
 

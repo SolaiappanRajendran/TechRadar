@@ -98,14 +98,14 @@ if(needFocus) {
     $(radarLegend).scrollTop(ringLegend.top);
 }
 };
-var blurOtherPoints = function(pointId) {
+var blurOtherPoints = function(pointId, animationRequired) {
     d3.selectAll('a circle, a path');
-    d3.select('#point-' + pointId).selectAll('circle, path').transition().duration(100).attr('fill', '#F04923').attr('stroke', 'white').attr('stroke-width', 2).attr('r', 15);
-    d3.select('#point-' + pointId).selectAll('text').transition().delay(100).attr('fill', 'white');
+    d3.select('#point-' + pointId).selectAll('circle, path').transition().duration(animationRequired? 100: 0).attr('fill', '#F04923').attr('stroke', 'white').attr('stroke-width', 2).attr('r', 15);
+    d3.select('#point-' + pointId).selectAll('text').transition().delay(animationRequired? 100: 0).attr('fill', 'white');
 };
 var restorepoints = function(animationRequired) {
-    d3.selectAll('a path, a circle').transition().delay(100).attr('r', 9).attr('fill', 'white').attr('stroke','#F04923').attr('stroke-width', 1);
-     d3.selectAll('a').selectAll('text').transition().delay(100).attr('fill', 'black');
+    d3.selectAll('a path, a circle').transition().delay(animationRequired? 100: 0).attr('r', 9).attr('fill', 'white').attr('stroke','#F04923').attr('stroke-width', 1);
+     d3.selectAll('a').selectAll('text').transition().delay(animationRequired? 100: 0).attr('fill', 'black');
 };
 var unhighlight = function(pointId, needFocus) {
     colourLink(pointId, undefined, undefined, false);
@@ -114,7 +114,7 @@ var unhighlight = function(pointId, needFocus) {
 };
 var highlight = function(pointId, pointColour, textColour, needFocus) {
     colourLink(pointId, pointColour, textColour, needFocus);
-    blurOtherPoints(pointId);
+    blurOtherPoints(pointId, needFocus);
 };
 var pointCoord = function(point, scaleFactor, quadrantRadius, tx, ty, startAngle) {
     var xI = 1;
