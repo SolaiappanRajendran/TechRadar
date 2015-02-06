@@ -1,3 +1,4 @@
+var Global = {};
 var quadrantRadiusDef = 400;
 var totalWidth = 600;
 var totalHeight = 640;
@@ -118,12 +119,21 @@ if(needFocus) {
 };
 var blurOtherPoints = function(pointId, animationRequired) {
     d3.selectAll('a circle, a path');
-    d3.select('#point-' + pointId).selectAll('circle, path').transition().duration(animationRequired? 100: 0).attr('r', 15).attr('fill', '#F04923').attr('stroke', 'white').attr('stroke-width', 2);
-    d3.select('#point-' + pointId).selectAll('text').transition().duration(animationRequired? 100: 0).attr('fill', 'white');
+    var points = d3.select('#point-' + pointId).selectAll('circle, path');
+    if(animationRequired)
+    points.transition().duration(animationRequired? 100: 0).attr('fill', '#F04923').attr('stroke', 'white').attr('stroke-width', 2);
+    else
+    points.attr('fill', '#F04923').attr('stroke', 'white').attr('stroke-width', 2);
+    d3.select('#point-' + pointId).selectAll('text').attr('fill', 'white');
 };
 var restorepoints = function(animationRequired) {
-    d3.selectAll('a path, a circle').transition().duration(animationRequired? 100: 0).attr('r', 9).attr('fill', 'white').attr('stroke','#F04923').attr('stroke-width', 1);
-     d3.selectAll('a').selectAll('text').transition().duration(animationRequired? 100: 0).attr('fill', 'black');
+
+    
+    if(animationRequired)
+        d3.selectAll('a path, a circle').transition().duration(animationRequired? 100: 0).attr('r', 9).attr('fill', 'white').attr('stroke','#F04923').attr('stroke-width', 1);
+     else 
+       d3.selectAll('a path, a circle').attr('r', 9).attr('fill', 'white').attr('stroke','#F04923').attr('stroke-width', 1);
+     d3.selectAll('a').selectAll('text').attr('fill', 'black');
 };
 var unhighlight = function(pointId, needFocus) {
     colourLink(pointId, undefined, undefined, false);
@@ -133,8 +143,8 @@ var unhighlight = function(pointId, needFocus) {
 var highlight = function(pointId, pointColour, textColour, needFocus) {
     colourLink(pointId, pointColour, textColour, needFocus);
 
-    var currentPoint = _.filter(radar_data[0].items, function(item) {
-        return item.index == pointId;
+    var currentPoint = _.filter(Global.points, function(item) {
+        return item.id == pointId;
     });
     
     if(currentPoint.length > 0) {
@@ -376,18 +386,39 @@ var quadrantIndex = 1;
         legendObject.parent = { color: CONFIG.segmentData[0][quadrantName].color, name: quadrantName, pointIndex: pointIndex };
 
         legendObject.items = [];
-
+ Global.points = [];
         if(filteredData.length > 0) {
         _(CONFIG.segmentData).each(function(segment) {
+            var segmentFilteredData = _.filter(filteredData[0].items, function(d) {return d.ring == segment.title; });
             var ringLegendObject = {
                 color: segment[quadrantName].color,
                 title: segment.title,
-                items:  _.filter(filteredData[0].items, function(d) {return d.ring == segment.title; })
+                items:  segmentFilteredData
             };
 
-            legendObject.items.push(ringLegendObject);          
+            legendObject.items.push(ringLegendObject); 
+
+
+            $.each(segmentFilteredData, function(elementIndex, point_element) {
+                pointIndex++;
+                var point = {
+                    radial:point_element.pc.r,
+                    theta: point_element.pc.t,
+                    movement: point_element.movement,
+                    id: pointIndex,  
+                    name: point_element.name,                  
+                    ring: segment.title,
+                   radarId: pointIndex,
+                   description: point_element.description,
+                    nameUrl: point_element.url
+                };
+                Global.points.push(point);
+            });
+
+
         });
     }
+    debugger;
         var templating = _.template($('#legend-template').html());
        $('#quadrant-' + (quadrantIndex) +'-legend').append(templating(legendObject)).hide().show(600);
        $('#tech-radar rect:first').attr('fill', legendObject.parent.color);
@@ -397,30 +428,11 @@ var quadrantIndex = 1;
        quadrantIndex++;
         if(filteredData.length > 0) {        
 
-
-            var points = [];
-            
-            $.each(filteredData[0].items, function(elementIndex, point_element) {
-                pointIndex++;
-                var point = {
-                    radial:point_element.pc.r,
-                    theta: point_element.pc.t,
-                    movement: point_element.movement,
-                    id: pointIndex,
-                    ring: 'Exit',
-                   radarId: pointIndex,
-                    nameUrl: point_element.url
-                };
-                points.push(point);
-            });
-
-       
-
-        if (points !== undefined) {           
+        if (Global.points !== undefined) {           
             var quadrantData = CONFIG.quadrantData[quadrantName];
                 originCoord = pointCoord({radial: 0, theta: 0}, scaleFactor, CONFIG.quadrantRadius, quadrantData.tx, quadrantData.ty, quadrantData.startAngle);
                 animateIndex = 1;
-                _(points).each(function(point) {
+                _(Global.points).each(function(point) {
                     
                     drawpoint(point, svg, quadrantData.colour, scaleFactor, CONFIG.quadrantRadius, quadrantData.tx, quadrantData.ty, CONFIG.pointWidth, CONFIG.pointFontSize, quadrantData.startAngle);
                 });
