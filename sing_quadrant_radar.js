@@ -418,7 +418,7 @@ var quadrantIndex = 1;
 
         });
     }
-    debugger;
+
         var templating = _.template($('#legend-template').html());
        $('#quadrant-' + (quadrantIndex) +'-legend').append(templating(legendObject)).hide().show(600);
        $('#tech-radar rect:first').attr('fill', legendObject.parent.color);
