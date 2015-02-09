@@ -420,7 +420,7 @@ var quadrantIndex = 1;
     }
 
         var templating = _.template($('#legend-template').html());
-       $('#quadrant-' + (quadrantIndex) +'-legend').append(templating(legendObject)).hide().show(600);
+       $('#quadrant-' + (quadrantIndex) +'-legend').append(templating(legendObject)).hide().fadeIn(1000);
        $('#tech-radar rect:first').attr('fill', legendObject.parent.color);
        $('.quadrant-1 .legend-header').css('color', 'white').html(legendObject.parent.name.replace(/-/g, ' ').replace('and', '&'));
     
