@@ -1,15 +1,11 @@
-<html>
-<head>
-    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
-    <script type="text/javascript" charset="utf-8" src="lib/d3.js"></script>
-    <script type="text/javascript" charset="utf-8" src="lib/underscore.js"></script>    
-    <script type="text/javascript" charset="utf-8" src="radars/radarData.js"></script>
-    <script type="text/javascript" src="sing_quadrant_radar.js" charset="utf-8"></script>
-    <script type="text/javascript" src="utils.js" charset="utf-8"></script>
-<script src="lib/xls.js"></script>
-<script src="lib/shim.js"></script>
-    <script type="text/template" id="legend-template">
+  
+    <script type="text/javascript" charset="utf-8" src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+    <script type="text/javascript" charset="utf-8" src="/servlet/JiveServlet/download/122215-4-125602/underscore.js"></script>
+    <script type="text/javascript" charset="utf-8" src="/servlet/JiveServlet/download/122215-6-125622/utils.js"></script>
+    <script type="text/javascript" src="/servlet/JiveServlet/download/122215-4-125605/sing_quadrant_radar.js" charset="utf-8"></script>
+<script src="/servlet/JiveServlet/download/122215-4-125601/xls.js"></script>
+<script src="/servlet/JiveServlet/download/122215-4-125603/shim.js"></script>   
+  <script type="text/template" id="legend-template">
     <div class="radar-legend">
         
        <% _.each(items,function(item, key, arr) { %>
@@ -34,14 +30,15 @@
        </div>
    </script>
    <style type="text/css">
-   @font-face {
-    font-family: SapientSansLight;
-    src: url(lib/SPNTSL.TTF);
-  }
-   body
-   {
-    background-color: white;
-   }
+
+.jive-widget-header
+{
+background: #456277 !important;
+}
+.jive-widget-header h4
+{
+color: #fff !important;
+}
    .tooltip-element-description-text
    {
     height: 150px;
@@ -110,25 +107,33 @@ transform-origin: 50% 50%;
       margin-left: -110.5px;
       height: 216px;
       background-repeat: no-repeat;
-      background-image: url(categories.png);
+      background-image: url(/servlet/JiveServlet/download/122215-4-125606/categories.jpg);
       left: 50%;
       top: calc(55% + 70px);
+        transition: display .5s ease;
+  -webkit-transition: display .5s ease;
+  -moz-transition: display .5s ease;
+  -o-transition: display .5s ease;
    }
-    .categories-classification.techniques
+   .categories-classification.techniques
    {
-    background-image: url(techniques.jpg);
+    background-image: url(/servlet/JiveServlet/download/122215-4-125611/techniques.jpg);
+           transition: display .5s ease;
+  -webkit-transition: display .5s ease;
+  -moz-transition: display .5s ease;
+  -o-transition: display .5s ease;
    }
    .categories-classification.platforms
    {
-    background-image: url(platforms.jpg);
+    background-image: url(/servlet/JiveServlet/download/122215-4-125609/platforms.jpg);
    }
    .categories-classification.tools
    {
-    background-image: url(tools.jpg);
+    background-image: url(/servlet/JiveServlet/download/122215-4-125612/tools.jpg);
    }
    .categories-classification.languages-and-frameworks
    {
-    background-image: url(languages-and-frameworks.jpg);
+    background-image: url(/servlet/JiveServlet/download/122215-4-125608/languages-and-frameworks.jpg);
    }
    .category-menu-item
    {
@@ -184,7 +189,7 @@ transform-origin: 50% 50%;
       display: block;
      }
     .sapient-logo{
-    background-image: url(sapient_logo.jpg);
+    background-image: url(/servlet/JiveServlet/download/122215-4-125610/sapient_logo.jpg);
     background-repeat: no-repeat;
     background-position: center center;
     width: 232px;
@@ -319,7 +324,7 @@ transform-origin: 50% 50%;
 
         var excelData = [];
         radar_data = [];
-        var url = "Tech-strategy-raw-data.xls";
+        var url = "/servlet/JiveServlet/download/122215-5-125621/Tech-strategy-raw-data.xls";
 
         var oReq = new XMLHttpRequest();
         oReq.open("GET", url, true);
@@ -345,7 +350,7 @@ $('#tech-radar').empty();
           radarName = $('.radar-chart-title').text().trim();
           quadrantName = $('.category-item.selected').attr('name').trim();
             var categoryCsvData = _.filter(excelData, function (element) {
-                return element['Classification Quadrant'] != null && element['Classification Quadrant'].toLowerCase().replace(/ /g, '-').replace('&', 'and') == quadrantName && element['Technology Offerings'] == radarName && element['Ring'] != null && element['DOT'] != null;
+                return element['Classification Quadrant'] != null && element['Classification Quadrant'].toLowerCase().replace(/ /g, '-').replace('&', 'and') == quadrantName && element['Bottom Up Category'] == radarName && element['Ring'] != null && element['DOT'] != null;
             });
 
             setRadarData(categoryCsvData);
@@ -440,7 +445,7 @@ function createRadar() {
    var sortIndex = {'presentationlayer': 0, 'other': 0, 'nextgenerationplatform': 1, 'businessintelligence': 2, 'design': 3, 'businessservices': 1, 'datalayer': 2, 'platformsandcloudservices': 3, 'integration': 4, 'infrastructure': 5, 'delivery': 6};
   var menu = $('.radar-chart-category-menu');
   
-  var uniqueData = _.sortBy(_.uniq(_.pluck(excelData, 'Technology Offerings')), function(item) { if(item == null) item = '';  return sortIndex[item.toLowerCase().replace(/ /g, '')];  });
+  var uniqueData = _.sortBy(_.uniq(_.pluck(excelData, 'Bottom Up Category')), function(item) { if(item == null) item = '';  return sortIndex[item.toLowerCase().replace(/ /g, '')];  });
                                 
                 $.each(uniqueData, function (index, category) {
                   
@@ -480,6 +485,7 @@ function createRadar() {
                           $(e.target).addClass('selected');
                           changeRadarData();
                       });
+
                         $('.category-menu-item').on('click', function() {
                           
                           $('.radar-chart-title').text($(this).text());
@@ -618,10 +624,6 @@ window.setTimeout(function() {
 </script>
 
 
-</head>
-
-<body>
-
 <div class="radar-container">
 <div class="legend-container quadrant-1">
   <div class="legend-header"></div>
@@ -659,5 +661,3 @@ window.setTimeout(function() {
 <div class="white title-menu-arrow"></div>
 
 </div>
-</body>
-</html>

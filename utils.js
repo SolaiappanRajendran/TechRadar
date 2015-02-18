@@ -70,5 +70,5 @@ function createSVGtext(caption, x, y, characters, lineHeight, maxHeight) {
 
     svgText.appendChild(svgTSpan);
 
-    return $(svgText);
+    return jQuery(svgText);
 }

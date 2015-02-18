@@ -168,12 +168,14 @@ var drawpoint = function(point, svg, colour, scale, quadrantRadius, tx, ty, poin
     var coord = pointCoord(point, scale, quadrantRadius, tx, ty, startAngle);
     var link = svg.append('svg:a').attr({
         'id': 'point-' + point.id,
-        'target': '_blank',
-        'xlink:href': point.nameUrl
+        'target': '_blank'
     }).style({
         'text-decoration': 'none',
         'cursor': 'pointer'
     });
+    if(point.nameUrl != null && point.nameUrl != '') {
+        link.attr('xlink:href', point.nameUrl);
+    }
         var highlightPointColor = '#F04923', highlightTextColor = 'white';
     var unHighlightPointColor = 'white', unHighlightTextColor = 'black';
     createShape(point, link, unHighlightPointColor, coord.x, coord.y, pointWidth);
@@ -288,7 +290,10 @@ function on_hover() {
 
 function on_click() {
     var id = parseInt(this.id.replace('legend-', ''));
-    window.open($('#point-' + id).attr('href'));
+    var href = $('#point-' + id).attr('href');
+
+    if(href != '')
+        window.open(href);
 }
 $(document).ready(function(){
     $('#tech-radar').on('draw', drawRadar);    

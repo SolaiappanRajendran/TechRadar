@@ -3,12 +3,11 @@
     <meta http-equiv="Content-type" content="text/html; charset=utf-8">
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
     <script type="text/javascript" charset="utf-8" src="lib/d3.js"></script>
-    <script type="text/javascript" charset="utf-8" src="lib/underscore.js"></script>    
-    <script type="text/javascript" charset="utf-8" src="radars/radarData.js"></script>
+    <script type="text/javascript" charset="utf-8" src="lib/underscore.js"></script>        
     <script type="text/javascript" src="sing_quadrant_radar.js" charset="utf-8"></script>
     <script type="text/javascript" src="utils.js" charset="utf-8"></script>
-<script src="lib/xls.js"></script>
-<script src="lib/shim.js"></script>
+    <script src="lib/xls.js"></script>
+    <script src="lib/shim.js"></script>
     <script type="text/template" id="legend-template">
     <div class="radar-legend">
         
@@ -353,7 +352,7 @@ $('#tech-radar').empty();
           radarName = $('.radar-chart-title').text().trim();
           quadrantName = $('.category-item.selected').attr('name').trim();
             var categoryCsvData = _.filter(excelData, function (element) {
-                return element['Classification Quadrant'] != null && element['Classification Quadrant'].toLowerCase().replace(/ /g, '-').replace('&', 'and') == quadrantName && element['Bottom Up Category'] == radarName && element['A/B'] != null && element['DOT'] != null;
+                return element['Classification Quadrant'] != null && element['Classification Quadrant'].toLowerCase().replace(/ /g, '-').replace('&', 'and') == quadrantName && element['Bottom Up Category'] == radarName && element['Ring'] != null && element['DOT'] != null;
             });
 
             setRadarData(categoryCsvData);
@@ -373,7 +372,7 @@ $('#tech-radar').empty();
             $.each(lines, function (index, recordObject) { 
               
                   var currentObject = { index: pointIndex++ };
-                  var ring = recordObject["A/B"];
+                  var ring = recordObject["Ring"];
                   var directionOfTravel = recordObject["DOT"];
                   var url = recordObject["URL"];                  
                   
@@ -568,7 +567,7 @@ svg.append('text').attr({
                 'font-family': 'Arial'
             });
 
-    svg.append('text').attr({
+  /*  svg.append('text').attr({
                 "class": 'tooltip-more-element-text',
                 "text-anchor": 'middle',
                 "fill": 'rgb(128, 127, 131)',
@@ -585,7 +584,7 @@ svg.append('text').attr({
        stroke: "#F04923",
        'fill': 'white',
        'stroke-width': 2
-    })
+    })*/
 
 }
 

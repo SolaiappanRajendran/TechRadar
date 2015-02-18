@@ -1,15 +1,10 @@
-<html>
-<head>
-    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
-    <script type="text/javascript" charset="utf-8" src="lib/d3.js"></script>
-    <script type="text/javascript" charset="utf-8" src="lib/underscore.js"></script>    
-    <script type="text/javascript" charset="utf-8" src="radars/radarData.js"></script>
-    <script type="text/javascript" src="sing_quadrant_radar.js" charset="utf-8"></script>
-    <script type="text/javascript" src="utils.js" charset="utf-8"></script>
-<script src="lib/xls.js"></script>
-<script src="lib/shim.js"></script>
-    <script type="text/template" id="legend-template">
+    <script type="text/javascript" charset="utf-8" src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+    <script type="text/javascript" charset="utf-8" src="/servlet/JiveServlet/download/122215-4-125602/underscore.js"></script>
+    <script type="text/javascript" charset="utf-8" src="/servlet/JiveServlet/download/122215-6-125622/utils.js"></script>
+    <script type="text/javascript" src="/servlet/JiveServlet/download/122215-4-125593/radar.js" charset="utf-8"></script>
+	<script src="/servlet/JiveServlet/download/122215-4-125601/xls.js"></script>
+	<script src="/servlet/JiveServlet/download/122215-4-125603/shim.js"></script>  
+	  <script type="text/template" id="legend-template">
     <div class="radar-legend">
         
        <% _.each(items,function(item, key, arr) { %>
@@ -34,43 +29,37 @@
        </div>
    </script>
    <style type="text/css">
-   @font-face {
-    font-family: SapientSansLight;
-    src: url(lib/SPNTSL.TTF);
-  }
-   body
-   {
-    background-color: white;
-   }
-   .tooltip-element-description-text
-   {
-    height: 150px;
-    overflow: hidden;
-   }
-   text.tooltip-sub-title-text {
-    text-transform: capitalize;
-    }
-   .category-item
-   {
-    display: inline-block;
-    position: relative;
-    width:108px;
-    height:108px;
-    overflow: hidden;
-    cursor: pointer;
-   }
+.jive-widget-header
+{
+background: #456277 !important;
+}
+.jive-widget-header h4
+{
+color: #fff !important;
+}
    .legend-item-container
    {
     cursor: pointer;
    }
-   
+   .radar-chart-sub-title
+   {
+
+    width: 500px;
+    position: absolute;
+    color: #807F83;
+    top: 180px;
+    font-size: 10pt;
+    font-family: SapientSansLight, Arial;
+    margin-left: -250px;
+    text-align: center;
+
+   }
    .title-menu-arrow
    {
     position: absolute;
      height: 20px;
      width: 20px;
-     top: calc(55% + 42px);
-     left: 50%;
+     top: 142px;
      margin-left: -10px;
      background-color: #F04923;
      /* Chrome/Safari */
@@ -95,45 +84,15 @@ transform-origin: 50% 50%;
    .title-menu-arrow.white{
     width: 10px;
     height: 10px;
-    left: 50%;
-    top: calc(55% + 40px);
     margin-top: -5px;
     margin-left: -5px;
     border: 1px solid white;
     border-left-width: 0;
     border-top-width: 0;
    }
-   .categories-classification
-   {
-      width: 221px;
-      position: absolute;
-      margin-left: -110.5px;
-      height: 216px;
-      background-repeat: no-repeat;
-      background-image: url(categories.png);
-      left: 50%;
-      top: calc(55% + 70px);
-   }
-    .categories-classification.techniques
-   {
-    background-image: url(techniques.jpg);
-   }
-   .categories-classification.platforms
-   {
-    background-image: url(platforms.jpg);
-   }
-   .categories-classification.tools
-   {
-    background-image: url(tools.jpg);
-   }
-   .categories-classification.languages-and-frameworks
-   {
-    background-image: url(languages-and-frameworks.jpg);
-   }
    .category-menu-item
    {
       height: 25px;
-
       text-align: center;
       padding-top: 4px;
       font-size: 12pt;
@@ -157,7 +116,6 @@ transform-origin: 50% 50%;
    {
     width: 297px;
     height: 40px;
-    left: 50%;
     background-color: #F04923;
     color: white;
     font-size: 14pt;
@@ -165,7 +123,7 @@ transform-origin: 50% 50%;
     font-family: SapientSansLight, Arial;
     padding-top: 12px;
     text-align: center;
-    top: 55%;
+    top: 100px;
     margin-left: -148.5px;
     position: absolute;
     cursor: pointer;
@@ -173,8 +131,7 @@ transform-origin: 50% 50%;
    .radar-chart-category-menu
    {
     width: 297px;      
-    top: calc(55% + 52px);
-    left: 50%;
+    top: 152px;
     margin-left: -148.5px;
     position: absolute;
     display: none;
@@ -184,7 +141,7 @@ transform-origin: 50% 50%;
       display: block;
      }
     .sapient-logo{
-    background-image: url(sapient_logo.jpg);
+    background-image: url(/servlet/JiveServlet/download/122215-4-125610/sapient_logo.jpg);
     background-repeat: no-repeat;
     background-position: center center;
     width: 232px;
@@ -206,9 +163,10 @@ transform-origin: 50% 50%;
    .legend-container
    {
     position: absolute;
-    width: 270px;
+    width: 300px;
     max-height: 500px;
 
+    overflow: hidden;
    }
    .ring-legend-container
    {
@@ -229,15 +187,30 @@ transform-origin: 50% 50%;
     font-family: Arial;
     padding-top: 1px;
    }
-   
+   .legend-container.quadrant-1{
+    left: 0;
+    top:0;
+   }
+   .legend-container.quadrant-2{
+    right: 0;
+    top:0;
+   }
+   .legend-container.quadrant-3{
+    left: 0;
+    bottom:0;
+   }
+   .legend-container.quadrant-4{
+    bottom: 0;
+    right:0;
+   }
    .ring-legend-header
    {
-    width:55px;
+    width:60px;
     text-align: right;
    }
    .ring-items
    {
-    width:180px;
+    width:200px;
     min-height: 16px;
    }
    .legend-item-container.highlight
@@ -261,23 +234,15 @@ transform-origin: 50% 50%;
     display: inline-block;
     vertical-align: top;
    }
-   .radar-container, .legend-category-container
+   .radar-container
    {
     position: relative; 
-    display: inline-block;
-    vertical-align: top;
-   }
-   .legend-category-container
-   {
-    width: 400px;
-    height: 680px;
    }
    .radar-legend
    {
     max-height: 300px;
     overflow-y: auto;
     overflow-x: hidden;
-    background-color: white;
     /*position: absolute;*/
     
    }
@@ -293,10 +258,8 @@ transform-origin: 50% 50%;
    {
     font-size: 25pt;
     font-family: SapientSansLight, Arial;
-    text-align: left;
+    text-align: center;
     text-transform: capitalize;
-    overflow: visible;
-    white-space: nowrap;
    }
    #quadrant-1-legend,#quadrant-2-legend,#quadrant-3-legend,#quadrant-4-legend
    {
@@ -308,18 +271,21 @@ transform-origin: 50% 50%;
     font-family: SapientSansLight, Arial;
     font-size: 8pt;
    }
-.quadrant-1 .legend-header
+.quadrant-1 .legend-header,.quadrant-2 .legend-header
 {
-    padding-bottom: 10px;
+    padding-top: 25px;
 }
-
+.quadrant-4 .legend-header,.quadrant-3 .legend-header
+{
+    padding-bottom: 25px;
+}
    </style>
     <script>
   (function($) {
 
         var excelData = [];
         radar_data = [];
-        var url = "Tech-strategy-raw-data.xls";
+        var url = "/servlet/JiveServlet/download/122215-5-125621/Tech-strategy-raw-data.xls";
 
         var oReq = new XMLHttpRequest();
         oReq.open("GET", url, true);
@@ -342,15 +308,14 @@ $('#tech-radar').empty();
 
      
 
-          radarName = $('.radar-chart-title').text().trim();
-          quadrantName = $('.category-item.selected').attr('name').trim();
+          var option = $('.radar-chart-title').text().trim()
             var categoryCsvData = _.filter(excelData, function (element) {
-                return element['Classification Quadrant'] != null && element['Classification Quadrant'].toLowerCase().replace(/ /g, '-').replace('&', 'and') == quadrantName && element['Technology Offerings'] == radarName && element['Ring'] != null && element['DOT'] != null;
+                return element['Bottom Up Category'] == option && element['Ring'] != null && element['DOT'] != null;
             });
 
             setRadarData(categoryCsvData);
 
-            $('#tech-title').text(radarName);
+            $('#tech-title').text(option);
         }
         function setRadarData(categoryArray) {
             radar_data = [];
@@ -358,16 +323,21 @@ $('#tech-radar').empty();
             var createdQuadrants = [];
             var directionOfTravelIncrementName = ['in', 'static', 'out'];
             var ringName = ['Maintain', 'Invest', 'Watch','Exit'];
+
+            var categories = _.groupBy(lines, function(item) { return item["Classification Quadrant"].replace('&', 'and'); });
+
+            $.each(categories, function (index, value) { 
+              if(index != '' && index != undefined && value != null) {
                 var obj = {};
-                obj['quadrant'] = quadrantName;
+                obj['quadrant'] = index;
                 obj['items'] = [];
-                var pointIndex = 1;
-            $.each(lines, function (index, recordObject) { 
-              
-                  var currentObject = { index: pointIndex++ };
+                $.each(value, function(recordIndex, recordObject) {
+                
+                  var currentObject = {};
                   var ring = recordObject["Ring"];
                   var directionOfTravel = recordObject["DOT"];
-                  var url = recordObject["URL"];                  
+                  var url = recordObject["URL"];
+                  var quadrantIndex = createdQuadrants.indexOf(index);
                   
                   var directionOfTravelIncrementValue = [8, (quadrantRadiusDef/(4*2)) - 8, (3 * quadrantRadiusDef/(4*4))];
                   var radial = directionOfTravelIncrementValue[directionOfTravelIncrementName.indexOf(directionOfTravel.toLowerCase())];
@@ -387,13 +357,11 @@ $('#tech-radar').empty();
                       default:
                           break;
                   }
-
                   currentObject['name'] = recordObject["Blip Name"];
                   currentObject['ring'] = ring;
                   currentObject['pc'] = {'r': radial, 't': 135};
                   currentObject['dot'] = directionOfTravel.toLowerCase();
                   currentObject['movement'] = 'c';
-                  currentObject['description'] = recordObject['Description'];
                   // Add the blipSize
                   currentObject['blipSize'] = recordObject["Blip Size"];
                   if (typeof url !== 'undefined' && url !== '') {
@@ -404,8 +372,9 @@ $('#tech-radar').empty();
                  
               });
                radar_data.push(obj);
-                createdQuadrants.push(quadrantName);
-             
+                createdQuadrants.push(index);
+              }
+            });
 
           
             var quadrantStartingAngle = [90, 0, 180, -90];
@@ -437,10 +406,10 @@ $('#tech-radar').empty();
         }
 function createRadar() {
   var techOfferings = [];
-   var sortIndex = {'presentationlayer': 0, 'other': 0, 'nextgenerationplatform': 1, 'businessintelligence': 2, 'design': 3, 'businessservices': 1, 'datalayer': 2, 'platformsandcloudservices': 3, 'integration': 4, 'infrastructure': 5, 'delivery': 6};
+  var sortIndex = {'presentationlayer': 0, 'other': 0, 'nextgenerationplatform': 1, 'businessintelligence': 2, 'design': 3, 'businessservices': 1, 'datalayer': 2, 'platformsandcloudservices': 3, 'integration': 4, 'infrastructure': 5, 'delivery': 6};
   var menu = $('.radar-chart-category-menu');
   
-  var uniqueData = _.sortBy(_.uniq(_.pluck(excelData, 'Technology Offerings')), function(item) { if(item == null) item = '';  return sortIndex[item.toLowerCase().replace(/ /g, '')];  });
+  var uniqueData = _.sortBy(_.uniq(_.pluck(excelData, 'Bottom Up Category')), function(item) { if(item == null) item = ''; return sortIndex[item.toLowerCase().replace(/ /g, '')];  });
                                 
                 $.each(uniqueData, function (index, category) {
                   
@@ -468,18 +437,6 @@ function createRadar() {
 
                       });
 
-                      $('.categories-classification').mouseover(function(e) {
-                          
-                          $(this).attr('class', 'categories-classification').addClass($(e.target).attr('name'));
-                      }).mouseout(function(e) {
-                        
-
-                              $(this).attr('class', 'categories-classification');
-                      }).click(function(e) {
-                          $('.category-item').removeClass('selected');
-                          $(e.target).addClass('selected');
-                          changeRadarData();
-                      });
                         $('.category-menu-item').on('click', function() {
                           
                           $('.radar-chart-title').text($(this).text());
@@ -489,96 +446,20 @@ function createRadar() {
 
                 $('.radar-chart-title').text($('.category-menu-item:first').text());
                 changeRadarData();
-   
-                drawTooltip();
-  
+                                  
+    $('.quadrant-2,.quadrant-4').css({ right: 'auto',
+                                     left: $('.left-padding').width() + $('#tech-radar').width() - 50
+                                    });
+  $('.quadrant-1,.quadrant-3').css({ 
+                                     left: $('#tech-radar').position().left - 300
+                                    });
+
+  var scrollBarWidth = $('body')[0].offsetHeight < $('body')[0].scrollHeight ? 21 : 0;
+
+  $('.radar-chart-title, .radar-chart-category-menu, .title-menu-arrow, .radar-chart-sub-title, .sapient-logo').css('left', ($('.left-padding').width() + quadrantRadiusDef + 10) + 'px');
             $('.sapient-logo').css('top' , ($('.top-padding').height() + (quadrantRadiusDef * 2) + 50) + 'px');
 }
 
-function drawTooltip() {
-  var svg = d3.select('.tooltip-container').style('margin-top', spacing + 'px').insert('svg', ':first-child').style('display', 'none').attr('width', 380).attr('height', 320);
-
-  var box = svg.append('rect').attr('x', 20).attr('y', 0).attr('width', 360).attr('height', 310).attr('fill', 'white').attr('stroke', '#F04923');
-  svg.append('rect').attr('x', 20).attr('y', 0).attr('width', 360).attr('height', 30).attr('fill', '#F04923');
-
-  svg.append('circle').attr({
-    'cx': 20,
-    'cy': 70,
-    'r': 14,
-    'fill': '#F04923'
-  })
-
-svg.append('text').attr({
-                "class": 'tooltip-index-text',
-                "text-anchor": 'middle',
-                "fill": 'white',
-                'transform': 'translate(' + (20) + ', ' + (77) + ')'
-            }).style({
-                'font-size': '15pt',
-                'font-family': 'Arial'
-            });
-
-  svg.append('text').attr({
-                "class": 'tooltip-title-text',
-                "text-anchor": 'start',
-                "fill": 'white',
-                'transform': 'translate(' + (15) + ', ' + (20) + ')'
-            }).style({
-                'font-size': '15pt',
-                'font-family': 'Arial'
-            });
-  svg.append('text').attr({
-                "class": 'tooltip-sub-title-text',
-                "text-anchor": 'start',
-                "fill": '#F04923',
-                'transform': 'translate(' + (15) + ', ' + (50) + ')'
-            }).style({
-                'font-size': '9.5pt',
-                'font-family': 'Arial'
-            });
-
-  svg.append('text').attr({
-                "class": 'tooltip-element-title-text',
-                "text-anchor": 'start',
-                "fill": 'rgb(128, 127, 131)',
-                'transform': 'translate(' + (15) + ', ' + (80) + ')'
-            }).style({
-                'font-size': '20pt',
-                'font-family': 'Arial'
-            });
-
-
-   svg.append('text').attr({
-                "class": 'tooltip-element-description-text',
-                "text-anchor": 'start',
-                "fill": 'rgb(128, 127, 131)',
-                'transform': 'translate(' + (15) + ', ' + (100) + ')'
-            }).style({
-                'font-size': '9.5pt',
-                
-                'font-family': 'Arial'
-            });
-
-  /*  svg.append('text').attr({
-                "class": 'tooltip-more-element-text',
-                "text-anchor": 'middle',
-                "fill": 'rgb(128, 127, 131)',
-                'transform': 'translate(' + (195) + ', ' + (270) + ')'
-            }).style({
-                'font-size': '9.5pt',                
-                'font-family': 'Arial'
-            }).text('MORE');
-    $('.tooltip-more-element-text').click(function(){
-        window.open($(this).data('href'));
-    });
-    svg.append('path').attr({
-        d: "M 30 280 L 180 280 L 195 295 L 210 280 L 370 280",       
-       stroke: "#F04923",
-       'fill': 'white',
-       'stroke-width': 2
-    })*/
-
-}
 
 function setLeftRightPaddingWidth() {
   var minPadding = 250;
@@ -592,8 +473,17 @@ function setLeftRightPaddingWidth() {
 
   $('.left-padding').width(minPadding + (extraPadding < 0 ? 0: extraPadding));
   $('.right-padding').width(minPadding + (extraPadding < 0 ? 0: extraPadding));
+  
+      $('.quadrant-2,.quadrant-4').css({ right: 'auto',
+                                     left: $('.left-padding').width() + $('#tech-radar').width() - 50
+                                    });
+  $('.quadrant-1,.quadrant-3').css({ 
+                                     left: $('#tech-radar').position().left - minPadding
+                                    });
 
+  var scrollBarWidth = $('body')[0].offsetHeight < $('body')[0].scrollHeight ? 21 : 0;
 
+  $('.radar-chart-title, .radar-chart-category-menu, .title-menu-arrow, .radar-chart-sub-title, .sapient-logo').css('left', ($('.left-padding').width() + quadrantRadiusDef + 10) + 'px');
   $('.sapient-logo').css('top' , ($('.top-padding').height() + (quadrantRadiusDef * 2) + 50) + 'px');
 
 }
@@ -618,36 +508,51 @@ window.setTimeout(function() {
 </script>
 
 
-</head>
-
-<body>
 
 <div class="radar-container">
 <div class="legend-container quadrant-1">
-  <div class="legend-header"></div>
 <div id="quadrant-1-legend">
+<div class="quadrant-top-padding">
+</div>
+
+</div>
+<div class="legend-header"></div>
+</div>
+<div class="legend-container quadrant-2">
+    
+<div id="quadrant-2-legend">
+<div class="quadrant-top-padding">
+</div>
+
+</div>
+<div class="legend-header"></div>
+</div>
+<div class="legend-container quadrant-3">
+    <div class="legend-header"></div>
+<div id="quadrant-3-legend">
+
+
+</div>
+
+</div>
+<div class="legend-container quadrant-4">
+    <div class="legend-header"></div>
+<div id="quadrant-4-legend">
 
 
 </div>
 
 </div>
 
-
-<div id="tech-radar">
-
-
+<div class="top-padding"></div>
+<div class="left-padding"></div>
+<div id="tech-radar"></div>
+<div class="right-padding"></div>
+<div class="bottom-padding"></div>
 </div>
-
-</div>
-<div class="legend-category-container">
-  <div class="tooltip-container"></div>
+<div class="radar-chart-sub-title">For more information click dots for VOX pages</div>
 <div class="title-menu-arrow"></div>
-<div class="categories-classification">
-<div name="languages-and-frameworks" class="category-item selected"></div>
-<div name="techniques" class="category-item"></div>
-<div name="tools" class="category-item"></div>
-<div name="platforms" class="category-item"></div>
-</div>
+
 
   <div class="radar-chart-category-menu">
 
@@ -655,9 +560,5 @@ window.setTimeout(function() {
 <div class="radar-chart-title">
 
 </div>
-
+<div class="sapient-logo"></div>
 <div class="white title-menu-arrow"></div>
-
-</div>
-</body>
-</html>
