@@ -3,7 +3,7 @@ var quadrantRadiusDef = 400;
 var totalWidth = 600;
 var totalHeight = 640;
 var quadrantName = 'techniques';
-var spacing = 30;
+var spacing = 18;
 var radarName = '', animateIndex, originCoord;
 function quadrant_setup() {    
     return {
@@ -12,9 +12,9 @@ function quadrant_setup() {
             'tx': 1,
             'ty': 1,
             'colour': '#587486',
-            'left': '45px',
+            'left': '33px',
             'right': 'auto',
-            'top': '45px',
+            'top': '33px',
             'bottom': 'auto'
         },
         'techniques': {
@@ -23,8 +23,8 @@ function quadrant_setup() {
             'ty': 1,
             'colour': '#B70062',
             'left': 'auto',
-            'right': '45px',
-            'top': '45px',
+            'right': '33px',
+            'top': '33px',
             'bottom': 'auto'
         },
         'tools': {
@@ -32,10 +32,10 @@ function quadrant_setup() {
             'tx': 1,
             'ty': 0,
             'colour': '#8FA227',
-            'left': '45px',
+            'left': '33px',
             'right': 'auto',
             'top': 'auto',
-            'bottom': '45px'
+            'bottom': '33px'
         },                       
         'platforms': {
             'startAngle': 90,
@@ -43,9 +43,9 @@ function quadrant_setup() {
             'ty': 0,
             'colour': '#DC6F1D',
             'left': 'auto',
-            'right': '45px',
+            'right': '33px',
             'top': 'auto',
-            'bottom': '45px'
+            'bottom': '33px'
         }
                
         

@@ -37,7 +37,7 @@ function createSVGtext(caption, x, y, characters, lineHeight, maxHeight) {
     var MAXIMUM_CHARS_PER_LINE = characters ? characters : 20;
     var LINE_HEIGHT = lineHeight? lineHeight : 16;
     maxHeight = maxHeight ? maxHeight : 200;
-    var words = caption.split(" ");
+    var words = caption ? caption.split(" ") : '';
     var line = "";
 
     for (var n = 0; n < words.length && y < maxHeight; n++) {
